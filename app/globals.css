@@ -1,26 +1,279 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Monochrome Professional — "Digital Swiss" design system.
+ *
+ * Strictly achromatic. Value (lightness) carries meaning, never hue.
+ * Sharp edges everywhere (0px radius). No gradients, no soft shadows.
+ * Inter is the sole typeface. Whitespace + 1px dividers define structure.
+ */
 
 @theme inline {
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-3xl: 0px;
+  --radius-4xl: 0px;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+
+  /* Tonal surface scale (achromatic) */
+  --color-surface-dim: var(--surface-dim);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-inverse-surface: var(--inverse-surface);
+  --color-inverse-on-surface: var(--inverse-on-surface);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --radius: 0px;
+
+  --background: #ffffff;
+  --foreground: #1a1b22;
+
+  --card: #ffffff;
+  --card-foreground: #1a1b22;
+
+  --popover: #ffffff;
+  --popover-foreground: #1a1b22;
+
+  --primary: #000000;
+  --primary-foreground: #ffffff;
+
+  --secondary: #f4f4f5;
+  --secondary-foreground: #1a1b22;
+
+  --muted: #fafafa;
+  --muted-foreground: #71717a;
+
+  --accent: #f4f4f5;
+  --accent-foreground: #000000;
+
+  --destructive: #ba1a1a;
+  --destructive-foreground: #ffffff;
+
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --ring: #000000;
+
+  --surface-dim: #fafafa;
+  --surface-container: #f4f4f5;
+  --surface-container-high: #e8e7f1;
+  --inverse-surface: #000000;
+  --inverse-on-surface: #ffffff;
+
+  --chart-1: #000000;
+  --chart-2: #3f3f46;
+  --chart-3: #71717a;
+  --chart-4: #a1a1aa;
+  --chart-5: #d4d4d8;
+
+  --sidebar: #fafafa;
+  --sidebar-foreground: #1a1b22;
+  --sidebar-primary: #000000;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f4f4f5;
+  --sidebar-accent-foreground: #000000;
+  --sidebar-border: #e4e4e7;
+  --sidebar-ring: #000000;
+}
+
+/*
+ * Dark mode is intentionally disabled for now. The light "Digital Swiss"
+ * theme above is the only theme in use. If a dark mode is built later,
+ * reintroduce a `.dark { ... }` block here with full token overrides,
+ * gated by the @custom-variant declared above.
+ */
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ---- Typography scale (Digital Swiss) ---- */
+@utility text-display {
+  font-size: 3rem; /* 48px */
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+@utility text-headline-lg {
+  font-size: 2rem; /* 32px */
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+@utility text-headline-md {
+  font-size: 1.25rem; /* 20px */
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+@utility text-body-lg {
+  font-size: 1.125rem; /* 18px */
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+@utility text-label-md {
+  font-size: 0.875rem; /* 14px */
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.05em;
+}
+
+@utility text-label-sm {
+  font-size: 0.75rem; /* 12px */
+  font-weight: 500;
+  line-height: 1;
+}
+
+/* 1px hairline divider helper */
+@utility hairline {
+  border-top: 1px solid var(--color-border);
+}
+
+@keyframes scan {
+  0% {
+    top: 0;
+  }
+  50% {
+    top: 100%;
+  }
+  100% {
+    top: 0;
+  }
+}
+.animate-scan {
+  animation: scan 4s linear infinite;
+}
+
+/* Diagonal light-sweep used by the Hero background */
+@keyframes shine {
+  0% {
+    transform: translateX(-100%) rotate(12deg);
+  }
+  100% {
+    transform: translateX(250%) rotate(12deg);
+  }
+}
+
+/* Gentle vertical float used by the Hero resume-mock card */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+/* ---- CV Evaluation design system ---- */
+@theme inline {
+  --spacing-gap-xs: 4px;
+  --spacing-gap-sm: 8px;
+  --spacing-gap-md: 16px;
+  --spacing-gap-lg: 24px;
+  --spacing-gap-xl: 32px;
+  --spacing-margin-desktop: 48px;
+  --spacing-margin-mobile: 16px;
+
+  --color-surface-lowest: #0e0e0e;
+  --color-surface-low: #1b1b1b;
+  --color-surface: #131313;
+  --color-surface-high: #2a2a2a;
+  --color-surface-highest: #353535;
+  --color-outline-variant: #444748;
+  --color-on-surface: #e2e2e2;
+  --color-on-surface-variant: #c4c7c8;
+  --color-outline: #8e9192;
+  --color-bento: #0a0a0a;
+  --color-bento-border: #262626;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+
+.bento-card {
+  background-color: #0a0a0a;
+  border: 1px solid #262626;
+  transition: border-color 0.2s ease;
+}
+
+.bento-card:hover {
+  border-color: #525252;
+}
+
+.progress-bar-fill {
+  transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dashboard-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dashboard-scroll::-webkit-scrollbar-track {
+  background: #000000;
+}
+
+.dashboard-scroll::-webkit-scrollbar-thumb {
+  background: #262626;
+}
+
+.dashboard-scroll::-webkit-scrollbar-thumb:hover {
+  background: #525252;
 }
