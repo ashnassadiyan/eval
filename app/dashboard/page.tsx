@@ -127,7 +127,7 @@ function JobRowSkeleton() {
 
 export default function Dashboard() {
   const { balance, total_added, total_used, loadingCredits } = useSelector(
-    (state) => state.credits
+    (state: any) => state?.credits
   );
 
   const [insights, setInsights] = useState(null);
