@@ -68,7 +68,7 @@ export function CreateJobPage({
   }, []);
 
   const handleDrop = useCallback(
-    (e: React.DragEvent<HTMLDivElement>) => {
+    (e: React.DragEvent<any>) => {
       e.preventDefault();
       setIsDragging(false);
       const file = e.dataTransfer.files?.[0];
@@ -113,26 +113,26 @@ export function CreateJobPage({
   }
 
   return (
-    <div className="bg-surface-lowest text-on-surface px-6 sm:px-10 py-10">
+    <div className="bg-slate-50 dark:bg-black text-zinc-900 dark:text-white px-6 sm:px-10 py-10 min-h-screen transition-colors">
       <div className="mx-auto w-full max-w-[1280px]">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-10">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-10 pb-6 border-b border-zinc-200 dark:border-zinc-800">
           <div>
-            <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-widest text-on-surface-variant">
+            <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
               <span> My Jobs / Create</span>
             </div>
-            <h1 className="mt-2 text-3xl sm:text-4xl font-black tracking-tight text-on-surface">
+            <h1 className="mt-2 text-3xl sm:text-4xl font-black tracking-tight text-zinc-900 dark:text-white">
               Create New Job
             </h1>
           </div>
 
           <div className="text-right shrink-0">
-            <p className="text-[11px] uppercase tracking-widest text-on-surface-variant">
+            <p className="text-[11px] uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
               Status
             </p>
-            <p className="mt-1 inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-green-400">
-              <span className="size-2 bg-green-400" />
-              Terminal Active
+            <p className="mt-1 inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-emerald-600 dark:text-emerald-400">
+              <span className="size-2 bg-emerald-500 rounded-full animate-pulse" />
+              Engine Active
             </p>
           </div>
         </div>
@@ -142,12 +142,12 @@ export function CreateJobPage({
             {/* LEFT COLUMN */}
             <div className="flex flex-col gap-6">
               {/* Basic info block */}
-              <div className="relative border border-bento-border bg-bento p-6 sm:p-8">
+              <div className="relative border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0a0a0a] p-6 sm:p-8 shadow-xs">
                 <div className="flex flex-col gap-6">
                   <div>
                     <label
                       htmlFor="employer"
-                      className="block text-xs font-semibold uppercase tracking-widest text-on-surface-variant"
+                      className="block text-xs font-semibold uppercase tracking-widest text-zinc-600 dark:text-zinc-400"
                     >
                       Employer / Company Name
                     </label>
@@ -157,10 +157,10 @@ export function CreateJobPage({
                       value={employer}
                       onChange={(e) => setEmployer(e.target.value)}
                       placeholder="e.g. Aether Dynamics Corp"
-                      className="mt-3 w-full bg-transparent border-b border-outline-variant pb-2 text-lg text-on-surface placeholder:text-outline outline-none focus-visible:border-on-surface transition-colors"
+                      className="mt-3 w-full bg-transparent border-b border-zinc-300 dark:border-zinc-700 pb-2 text-lg text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-600 outline-none focus-visible:border-black dark:focus-visible:border-white transition-colors"
                     />
                     {errors.employer && (
-                      <p className="mt-2 text-xs text-red-400">
+                      <p className="mt-2 text-xs text-red-500">
                         {errors.employer}
                       </p>
                     )}
@@ -169,7 +169,7 @@ export function CreateJobPage({
                   <div>
                     <label
                       htmlFor="jobTitle"
-                      className="block text-xs font-semibold uppercase tracking-widest text-on-surface-variant"
+                      className="block text-xs font-semibold uppercase tracking-widest text-zinc-600 dark:text-zinc-400"
                     >
                       Job Title
                     </label>
@@ -179,10 +179,10 @@ export function CreateJobPage({
                       value={jobTitle}
                       onChange={(e) => setJobTitle(e.target.value)}
                       placeholder="e.g. Senior Kernel Engineer"
-                      className="mt-3 w-full bg-transparent border-b border-outline-variant pb-2 text-lg text-on-surface placeholder:text-outline outline-none focus-visible:border-on-surface transition-colors"
+                      className="mt-3 w-full bg-transparent border-b border-zinc-300 dark:border-zinc-700 pb-2 text-lg text-zinc-900 dark:text-white placeholder:text-zinc-400 dark:placeholder:text-zinc-600 outline-none focus-visible:border-black dark:focus-visible:border-white transition-colors"
                     />
                     {errors.jobTitle && (
-                      <p className="mt-2 text-xs text-red-400">
+                      <p className="mt-2 text-xs text-red-500">
                         {errors.jobTitle}
                       </p>
                     )}
@@ -192,7 +192,7 @@ export function CreateJobPage({
                     <div>
                       <label
                         htmlFor="applicationDeadline"
-                        className="block text-xs font-semibold uppercase tracking-widest text-on-surface-variant"
+                        className="block text-xs font-semibold uppercase tracking-widest text-zinc-600 dark:text-zinc-400"
                       >
                         Application Deadline
                       </label>
@@ -206,12 +206,12 @@ export function CreateJobPage({
                             setApplicationDeadline(e.target.value)
                           }
                           placeholder="YYYY-MM-DD"
-                          className="w-full bg-transparent border border-outline-variant px-4 py-3 pr-10 text-sm text-on-surface placeholder:text-outline outline-none focus-visible:border-on-surface transition-colors"
+                          className="w-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 px-4 py-3 pr-10 text-sm text-zinc-900 dark:text-white placeholder:text-zinc-400 outline-none focus-visible:border-black dark:focus-visible:border-white transition-colors"
                         />
-                        <Calendar className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 size-4 text-outline" />
+                        <Calendar className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 size-4 text-zinc-500" />
                       </div>
                       {errors.applicationDeadline && (
-                        <p className="mt-2 text-xs text-red-400">
+                        <p className="mt-2 text-xs text-red-500">
                           {errors.applicationDeadline}
                         </p>
                       )}
@@ -221,12 +221,12 @@ export function CreateJobPage({
               </div>
 
               {/* JD upload block */}
-              <div className="border border-bento-border bg-bento p-6 sm:p-8">
+              <div className="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0a0a0a] p-6 sm:p-8 shadow-xs">
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <h2 className="text-xs font-semibold uppercase tracking-widest text-on-surface-variant">
+                  <h2 className="text-xs font-semibold uppercase tracking-widest text-zinc-600 dark:text-zinc-400">
                     Job Description Data
                   </h2>
-                  <span className="text-xs text-outline">
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400">
                     Format: PDF, DOCX, TXT
                   </span>
                 </div>
@@ -238,35 +238,33 @@ export function CreateJobPage({
                     setIsDragging(true);
                   }}
                   onDragLeave={() => setIsDragging(false)}
-                  // @ts-ignore
-
                   onDrop={handleDrop}
                   className={`mt-4 flex flex-col items-center justify-center gap-4 border-2 border-dashed px-6 py-14 text-center cursor-pointer transition-colors ${
                     isDragging
-                      ? "border-on-surface bg-surface-low"
-                      : "border-outline-variant hover:border-outline"
+                      ? "border-black dark:border-white bg-zinc-100 dark:bg-zinc-900"
+                      : "border-zinc-300 dark:border-zinc-800 bg-zinc-50 dark:bg-transparent hover:border-zinc-400 dark:hover:border-zinc-700"
                   }`}
                 >
-                  <span className="flex items-center justify-center size-16 border border-outline-variant text-on-surface">
+                  <span className="flex items-center justify-center size-16 border border-zinc-300 dark:border-zinc-700 text-zinc-800 dark:text-white bg-zinc-100 dark:bg-zinc-900 rounded-lg">
                     <FileUp className="size-6" />
                   </span>
 
                   {jdFile ? (
                     <div>
-                      <p className="text-sm font-bold text-on-surface break-all">
+                      <p className="text-sm font-bold text-zinc-900 dark:text-white break-all">
                         {jdFile.name}
                       </p>
-                      <p className="mt-1 text-xs text-on-surface-variant">
+                      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                         {(jdFile.size / (1024 * 1024)).toFixed(2)} MB &middot;
                         click or drop to replace
                       </p>
                     </div>
                   ) : (
                     <div>
-                      <p className="text-sm font-bold uppercase tracking-wide text-on-surface">
+                      <p className="text-sm font-bold uppercase tracking-wide text-zinc-900 dark:text-white">
                         Drop JD here or click to browse
                       </p>
-                      <p className="mt-1 text-xs text-on-surface-variant">
+                      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                         Max file size: 10MB | Encrypted transmission
                       </p>
                     </div>
@@ -285,14 +283,14 @@ export function CreateJobPage({
                   />
                 </label>
                 {errors.jdFile && (
-                  <p className="mt-3 text-xs text-red-400">{errors.jdFile}</p>
+                  <p className="mt-3 text-xs text-red-500">{errors.jdFile}</p>
                 )}
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="self-start inline-flex items-center justify-center gap-2 bg-on-surface text-surface-lowest px-6 py-3 text-sm font-bold uppercase tracking-wide hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="self-start inline-flex items-center justify-center gap-2 bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 px-7 py-3.5 rounded-xl text-sm font-extrabold uppercase tracking-wider hover:bg-zinc-800 dark:hover:bg-zinc-100 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 cursor-pointer select-none"
               >
                 {isSubmitting ? "Creating..." : "Create Position"}
               </button>
@@ -301,21 +299,21 @@ export function CreateJobPage({
             {/* RIGHT COLUMN */}
             <div className="flex flex-col gap-6">
               {/* Insight panel */}
-              <div className="relative border border-bento-border bg-bento p-6 sm:p-8 pl-8">
-                <span className="absolute left-0 top-0 bottom-0 w-1 bg-on-surface" />
+              <div className="relative border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0a0a0a] p-6 sm:p-8 pl-8 shadow-xs">
+                <span className="absolute left-0 top-0 bottom-0 w-1 bg-black dark:bg-white" />
 
                 <div className="flex items-center gap-2">
-                  <span className="flex items-center justify-center size-6 bg-on-surface text-surface-lowest">
+                  <span className="flex items-center justify-center size-6 bg-black text-white dark:bg-white dark:text-black rounded-xs">
                     <Sliders className="size-3.5" />
                   </span>
-                  <h2 className="text-xs font-bold uppercase tracking-widest text-on-surface">
+                  <h2 className="text-xs font-bold uppercase tracking-widest text-zinc-900 dark:text-white">
                     Recruitment Engine Insight
                   </h2>
                 </div>
 
-                <p className="mt-5 text-sm leading-relaxed text-on-surface-variant">
-                  Uploading a detailed JD allows EVAL CV to construct a precise{" "}
-                  <strong className="font-bold text-on-surface">
+                <p className="mt-5 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+                  Uploading a detailed JD allows EvalCv to construct a precise{" "}
+                  <strong className="font-bold text-zinc-900 dark:text-white">
                     Technical Matrix
                   </strong>{" "}
                   for candidate cross-referencing. The engine will extract 20+
@@ -324,36 +322,36 @@ export function CreateJobPage({
 
                 <div className="mt-6 flex flex-col gap-4">
                   <div>
-                    <div className="flex items-center justify-between text-xs uppercase tracking-wide text-on-surface-variant">
+                    <div className="flex items-center justify-between text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
                       <span>Extraction Precision</span>
-                      <span className="text-on-surface font-bold">98.2%</span>
+                      <span className="text-zinc-900 dark:text-white font-bold">98.2%</span>
                     </div>
-                    <div className="mt-2 h-1 w-full bg-surface-high">
-                      <div className="h-full w-[98.2%] bg-on-surface" />
+                    <div className="mt-2 h-1 w-full bg-zinc-200 dark:bg-zinc-800">
+                      <div className="h-full w-[98.2%] bg-black dark:bg-white" />
                     </div>
                   </div>
 
                   <div>
-                    <div className="flex items-center justify-between text-xs uppercase tracking-wide text-on-surface-variant">
+                    <div className="flex items-center justify-between text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
                       <span>Latent Processing</span>
-                      <span className="text-on-surface font-bold">
+                      <span className="text-zinc-900 dark:text-white font-bold">
                         &lt; 200ms
                       </span>
                     </div>
-                    <div className="mt-2 h-1 w-full bg-surface-high">
-                      <div className="h-full w-[35%] bg-on-surface" />
+                    <div className="mt-2 h-1 w-full bg-zinc-200 dark:bg-zinc-800">
+                      <div className="h-full w-[35%] bg-black dark:bg-white" />
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Parameters block */}
-              <div className="border border-outline-variant p-6 sm:p-8 flex flex-col gap-6">
+              <div className="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0a0a0a] p-6 sm:p-8 flex flex-col gap-6 shadow-xs">
                 <div className="flex items-center gap-3">
-                  <span className="flex items-center justify-center size-10 border border-outline-variant text-lg font-black text-on-surface">
+                  <span className="flex items-center justify-center size-10 border border-zinc-300 dark:border-zinc-700 text-lg font-black text-zinc-900 dark:text-white rounded-lg">
                     02
                   </span>
-                  <h2 className="text-sm font-bold uppercase tracking-widest text-on-surface">
+                  <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-900 dark:text-white">
                     Parameters
                   </h2>
                 </div>
@@ -366,9 +364,9 @@ export function CreateJobPage({
                   ].map((tip, i) => (
                     <li
                       key={i}
-                      className="flex items-start gap-3 text-xs leading-relaxed text-on-surface-variant"
+                      className="flex items-start gap-3 text-xs leading-relaxed text-zinc-600 dark:text-zinc-400"
                     >
-                      <span className="mt-1 size-1.5 shrink-0 bg-on-surface-variant" />
+                      <span className="mt-1 size-1.5 shrink-0 bg-zinc-400 dark:bg-zinc-600 rounded-full" />
                       <span className="uppercase tracking-wide">{tip}</span>
                     </li>
                   ))}

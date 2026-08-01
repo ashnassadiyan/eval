@@ -1,24 +1,20 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-  type ReactNode,
-} from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
 import api from "@/lib/axios";
 import { getUserCredit } from "@/store/slices/creditSlice";
-import { AppDispatch } from "@/store/store";
-import { useDispatch } from "react-redux";
+import { ensureFcmTokenSync } from "@/lib/fcm";
 
 interface User {
-  id: string;
-  name: string;
+  id: string | number;
   email: string;
-  [key: string]: unknown;
+  name?: string;
+  phone?: string;
+  user_type?: string;
+  is_admin?: boolean;
+  fcm_token?: string;
 }
 
 interface AuthContextType {
@@ -26,96 +22,276 @@ interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  authError: string | null;
   login: (email: string, password: string) => Promise<void>;
-  signup: (name: string, email: string, password: string) => Promise<void>;
+  signup: (name: string, email: string, password: string, userType?: string) => Promise<boolean>;
   logout: () => void;
+  setAuthError: (err: string | null) => void;
+  refetchUser: () => Promise<User | null>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const dispatch = useDispatch<AppDispatch>();
+const AUTH_UNAUTHORIZED_EVENT = "auth:unauthorized";
 
+function setAuthCookie(token: string) {
+  if (typeof document !== "undefined") {
+    document.cookie = `access_token=${token}; path=/; max-age=86400; SameSite=Lax;`;
+  }
+}
+
+function clearAuthCredentials() {
+  if (typeof window !== "undefined") {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("fcm_token");
+  }
+  if (typeof document !== "undefined") {
+    document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+  }
+}
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [authError, setAuthError] = useState<string | null>(null);
+
   const router = useRouter();
+  const dispatch = useDispatch<any>();
 
-  // Hydrate auth state from localStorage on mount
-  useEffect(() => {
-    try {
-      const storedToken = localStorage.getItem("access_token");
-      const storedUser = localStorage.getItem("user");
+  // Fetch full user profile details from backend
+  const fetchUserProfile = useCallback(async (): Promise<User | null> => {
+    const endpoints = [
+      "/auth/user_insights",
+      "/auth/me",
+      "/auth/user",
+      "/user/profile",
+      "/users/me",
+    ];
 
-      if (storedToken && storedUser) {
-        setToken(storedToken);
-        setUser(JSON.parse(storedUser));
+    for (const endpoint of endpoints) {
+      try {
+        const response = await api.get(endpoint);
+        const data = response.data;
+        if (data) {
+          const rawUser = data.user || data.data || data;
+          const email = rawUser.email || rawUser.user_email || rawUser.username || "";
+          const rawName =
+            rawUser.name ||
+            rawUser.full_name ||
+            rawUser.display_name ||
+            (email ? email.split("@")[0] : "");
+
+          const formattedName = rawName
+            ? rawName.charAt(0).toUpperCase() + rawName.slice(1)
+            : "Member";
+
+          if (email || rawUser.id || rawUser._id) {
+            const userObj: User = {
+              id: rawUser.id || rawUser._id || rawUser.user_id || "1",
+              email: email || "user@evalcv.com",
+              name: formattedName,
+              phone: rawUser.phone || rawUser.phone_number || undefined,
+              user_type: rawUser.user_type || rawUser.role || "recruiter",
+              is_admin: rawUser.is_admin || rawUser.role === "admin" || false,
+              fcm_token: rawUser.fcm_token || localStorage.getItem("fcm_token") || undefined,
+            };
+
+            return userObj;
+          }
+        }
+      } catch (err: any) {
+        if (err?.response?.status === 401 || err?.response?.status === 403) {
+          return null;
+        }
       }
-    } catch {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("user");
-    } finally {
-      setIsLoading(false);
     }
+    return null;
   }, []);
+
+  // Hydrate auth state from localStorage and fetch authentic user profile
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        const storedToken = localStorage.getItem("access_token");
+        const storedUserRaw = localStorage.getItem("user");
+
+        if (storedToken) {
+          setToken(storedToken);
+          setAuthCookie(storedToken);
+
+          let parsedUser: User | null = null;
+          if (storedUserRaw) {
+            try {
+              parsedUser = JSON.parse(storedUserRaw);
+            } catch (e) {}
+          }
+
+          // Fetch fresh user profile from backend
+          const fetchedUser = await fetchUserProfile();
+
+          if (fetchedUser) {
+            const mergedUser = { ...parsedUser, ...fetchedUser };
+            setUser(mergedUser);
+            localStorage.setItem("user", JSON.stringify(mergedUser));
+            dispatch(getUserCredit());
+            ensureFcmTokenSync(mergedUser);
+          } else {
+            // User not found or token invalid -> clear credentials and prompt login
+            console.warn("Backend user validation failed. Logging out and asking for re-login.");
+            clearAuthCredentials();
+            setUser(null);
+            setToken(null);
+            setAuthError("Session expired or user not found. Please log in again.");
+          }
+        } else {
+          setUser(null);
+          setToken(null);
+        }
+      } catch (e) {
+        console.error("Auth initialization error:", e);
+        clearAuthCredentials();
+        setUser(null);
+        setToken(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeAuth();
+  }, [fetchUserProfile, dispatch]);
+
+  // Listen for unauthorized events emitted by Axios interceptor
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      clearAuthCredentials();
+      setUser(null);
+      setToken(null);
+      setAuthError("Session expired or user not found. Please log in again.");
+      router.push("/login");
+    };
+
+    window.addEventListener(AUTH_UNAUTHORIZED_EVENT, handleUnauthorized);
+    return () => {
+      window.removeEventListener(AUTH_UNAUTHORIZED_EVENT, handleUnauthorized);
+    };
+  }, [router]);
 
   const login = useCallback(
     async (email: string, password: string) => {
-      const response = await api.post("/auth/token", { email, password });
-      const { access_token, user: userData } = response.data;
+      setAuthError(null);
+      try {
+        const response = await api.post("/auth/token", { email, password });
+        const { access_token, user: userData } = response.data;
 
-      localStorage.setItem("access_token", access_token);
-      localStorage.setItem("user", JSON.stringify(userData));
+        if (!access_token) {
+          throw new Error("Invalid login response from server");
+        }
 
-      setToken(access_token);
-      setUser(userData);
-      router.push("/evalute");
+        // Save Token
+        localStorage.setItem("access_token", access_token);
+        setAuthCookie(access_token);
+        setToken(access_token);
+
+        // Fetch User profile from backend to ensure name and email are populated
+        let finalUser: User | null = userData || null;
+        if (!finalUser || !finalUser.email || !finalUser.name) {
+          const fetched = await fetchUserProfile();
+          if (fetched) {
+            finalUser = { ...finalUser, ...fetched };
+          }
+        }
+
+        if (!finalUser) {
+          finalUser = {
+            id: "1",
+            email: email,
+            name: email.split("@")[0].charAt(0).toUpperCase() + email.split("@")[0].slice(1),
+          };
+        }
+
+        localStorage.setItem("user", JSON.stringify(finalUser));
+        setUser(finalUser);
+
+        // Fetch user credits and sync FCM token
+        dispatch(getUserCredit());
+        ensureFcmTokenSync(finalUser);
+
+        // Check for redirect query param
+        if (typeof window !== "undefined") {
+          const params = new URLSearchParams(window.location.search);
+          const redirectPath = params.get("redirect");
+          if (redirectPath && redirectPath.startsWith("/")) {
+            router.push(redirectPath);
+            return;
+          }
+        }
+
+        router.push("/dashboard");
+      } catch (err: any) {
+        const msg =
+          err.response?.data?.detail ||
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to authenticate. Please check your credentials.";
+        setAuthError(msg);
+        throw err;
+      }
     },
-    [router]
+    [router, dispatch, fetchUserProfile]
   );
 
   const signup = useCallback(
-    async (name: string, email: string, password: string) => {
-      const response = await api.post("/auth/register", {
-        name,
-        email,
-        password,
-      });
-      const { access_token, user: userData } = response.data;
+    async (name: string, email: string, password: string, userType: string = "recruiter"): Promise<boolean> => {
+      setAuthError(null);
+      try {
+        await api.post("/auth/create_user", {
+          name,
+          email,
+          password,
+          user_type: userType,
+        });
 
-      localStorage.setItem("access_token", access_token);
-      localStorage.setItem("user", JSON.stringify(userData));
-
-      setToken(access_token);
-      setUser(userData);
-      router.push("/dashboard");
+        return true;
+      } catch (err: any) {
+        const msg =
+          err.response?.data?.detail ||
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to create account. Please try again.";
+        setAuthError(msg);
+        throw err;
+      }
     },
-    [router]
+    []
   );
 
   const logout = useCallback(() => {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("user");
+    clearAuthCredentials();
     setToken(null);
     setUser(null);
+    setAuthError(null);
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("has_seen_welcome_v3");
+      sessionStorage.removeItem("trigger_welcome_splash");
+    }
     router.push("/login");
   }, [router]);
-
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) dispatch(getUserCredit());
-  }, [dispatch]);
 
   return (
     <AuthContext.Provider
       value={{
         user,
         token,
-        isAuthenticated: !!token,
+        isAuthenticated: !!token && !!user,
         isLoading,
+        authError,
         login,
         signup,
         logout,
+        setAuthError,
+        refetchUser: fetchUserProfile,
       }}
     >
       {children}
@@ -125,7 +301,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;

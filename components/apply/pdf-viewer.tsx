@@ -94,10 +94,10 @@ export function PdfViewer({
   return (
     <div
       ref={containerRef}
-      className="flex flex-col overflow-hidden rounded-2xl border border-black/10 dark:border-white/10 bg-neutral-100 dark:bg-[#0d0d0d]"
+      className="flex flex-col overflow-hidden rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-[#0d0d0d] shadow-xs transition-colors"
     >
       {/* Toolbar */}
-      <div className="flex items-center justify-between gap-2 border-b border-black/10 dark:border-white/10 px-4 py-3">
+      <div className="flex items-center justify-between gap-2 border-b border-zinc-200 dark:border-white/10 bg-zinc-50/50 dark:bg-transparent px-4 py-3">
         <div className="flex items-center gap-1">
           <button
             type="button"

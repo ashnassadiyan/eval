@@ -17,7 +17,7 @@ export function JdHeader({ job, jdLink }: any) {
         <a
           href={jdLink}
           download
-          className="inline-flex items-center gap-2 rounded-md border border-black/10 dark:border-white/15 bg-white dark:bg-white/5 px-4 py-2.5 text-xs font-bold uppercase tracking-wide text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-white/10 transition-colors"
+          className="inline-flex items-center gap-2 rounded-lg border border-zinc-300 dark:border-white/20 bg-white/80 dark:bg-white/5 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-zinc-800 dark:text-zinc-200 hover:bg-zinc-900 hover:text-white dark:hover:bg-white dark:hover:text-zinc-950 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] shadow-2xs cursor-pointer select-none"
         >
           <Download size={14} />
           Download JD

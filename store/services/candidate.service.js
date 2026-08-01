@@ -16,6 +16,12 @@ class Candidate {
       file_path: id,
     });
   }
+  getUploadUrls(jobId, fileNames) {
+    return api.post("/candidates/get-upload-urls", {
+      job_id: jobId,
+      file_names: fileNames,
+    });
+  }
 }
 
 export default new Candidate();

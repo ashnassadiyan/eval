@@ -3,46 +3,50 @@
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { PageLoader } from "@/components/ui/PageLoader";
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
-  console.log(pathname, "pathname");
+  // Public routes (no authentication required)
+  const isPublicRoute =
+    pathname === "/" ||
+    Boolean(pathname?.startsWith("/apply")) ||
+    Boolean(pathname?.startsWith("/login")) ||
+    Boolean(pathname?.startsWith("/signup"));
 
-  // Public routes
-  const isPublicRoute = pathname === "/" || pathname.startsWith("/apply");
+  const isAuthPage =
+    Boolean(pathname?.startsWith("/login")) ||
+    Boolean(pathname?.startsWith("/signup"));
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated && !isPublicRoute) {
-      // router.push("/login");
+    if (isLoading) return;
+
+    // 1. If trying to access protected route without valid auth or user object -> redirect to login
+    if ((!isAuthenticated || !user) && !isPublicRoute) {
+      console.warn(`Unauthenticated access attempt to ${pathname}. Redirecting to login.`);
+      const redirectUrl = `/login?redirect=${encodeURIComponent(pathname)}`;
+      router.push(redirectUrl);
+      return;
     }
-  }, [isAuthenticated, isLoading, isPublicRoute, router]);
 
-  if (isLoading && !isPublicRoute) {
+    // 2. If authenticated user attempts to visit /login or /signup -> redirect to dashboard
+    if (isAuthenticated && user && isAuthPage) {
+      router.push("/dashboard");
+    }
+  }, [isAuthenticated, user, isLoading, isPublicRoute, isAuthPage, pathname, router]);
+
+  // Loading Screen for Protected Routes during Session Validation or Redirects
+  if ((isLoading || !isAuthenticated || !user) && !isPublicRoute) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-black">
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative h-12 w-12">
-            <div className="absolute inset-0 rounded-full border-2 border-zinc-800" />
-            <div className="absolute inset-0 rounded-full border-2 border-white border-t-transparent animate-spin" />
-          </div>
-          <p className="text-sm text-zinc-500 font-medium tracking-wide">
-            Authenticating...
-          </p>
-        </div>
-      </div>
+      <PageLoader
+        message={isLoading ? "Validating Session..." : "Authentication Required"}
+        subtext={isLoading ? "Verifying user credentials with backend" : "Redirecting to sign in screen..."}
+        fullScreen={true}
+      />
     );
-  }
-
-  // Allow public routes without authentication
-  if (isPublicRoute) {
-    return <>{children}</>;
-  }
-
-  if (!isAuthenticated) {
-    return null;
   }
 
   return <>{children}</>;

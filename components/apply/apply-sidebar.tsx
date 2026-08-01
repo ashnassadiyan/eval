@@ -2,13 +2,10 @@
 
 import { useCallback, useRef, useState } from "react";
 import { Clock, UploadCloud, ArrowRight, FileCheck2, X } from "lucide-react";
-import type { JobPosting } from "@/lib/types";
 import candidateService from "@/store/services/candidate.service";
 import ApplicationStatusModal from "./ApplicationStatusModel";
 
 export function ApplySidebar({ job, onSubmit }: any) {
-  console.log(job, "job");
-
   const { job_details } = job;
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -25,7 +22,6 @@ export function ApplySidebar({ job, onSubmit }: any) {
     if (!f) return;
 
     const isPdf = f.type === "application/pdf" || /\.pdf$/i.test(f.name);
-
     const isValidSize = f.size <= 10 * 1024 * 1024;
 
     if (!isPdf) {
@@ -89,7 +85,6 @@ export function ApplySidebar({ job, onSubmit }: any) {
       setStatus("submitting");
 
       const formData = new FormData();
-
       formData.append("cv", file);
       formData.append("is_allowed", "false");
       formData.append("email", email.trim());
@@ -100,7 +95,6 @@ export function ApplySidebar({ job, onSubmit }: any) {
       );
 
       const data = response.data.result;
-
       console.log("Evaluation result:", data);
 
       onSubmit?.(file);
@@ -115,32 +109,30 @@ export function ApplySidebar({ job, onSubmit }: any) {
   const handleSubmit = async () => {
     setError("");
     setSubmitting(true);
-
     await handleEvaluate();
-
     setSubmitting(false);
   };
 
   return (
-    <aside className="flex h-fit flex-col gap-5 rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#0d0d0d] p-6">
-      <div className="inline-flex w-fit items-center gap-2 rounded-md bg-lime-300 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-black">
+    <aside className="flex h-fit flex-col gap-5 rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-[#0d0d0d] p-6 shadow-xs transition-colors">
+      <div className="inline-flex w-fit items-center gap-2 rounded-md bg-emerald-500 text-white dark:bg-lime-300 dark:text-black px-3 py-1.5 text-xs font-bold uppercase tracking-wide">
         <Clock size={14} strokeWidth={2.5} />
         Deadline: {job.deadline}
       </div>
 
       <div>
-        <h2 className="text-2xl font-extrabold tracking-tight text-neutral-900 dark:text-white">
+        <h2 className="text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-white">
           Apply Now
         </h2>
 
-        <p className="mt-1 text-xs font-medium uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
+        <p className="mt-1 text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-neutral-500">
           Role ID: #{job_details.id}
         </p>
       </div>
 
       {/* Email Field */}
       <div>
-        <label className="mb-2 block text-sm font-semibold text-neutral-800 dark:text-neutral-100">
+        <label className="mb-2 block text-sm font-semibold text-zinc-800 dark:text-neutral-100">
           Email Address
         </label>
 
@@ -152,7 +144,7 @@ export function ApplySidebar({ job, onSubmit }: any) {
             setError("");
           }}
           placeholder="your@email.com"
-          className="w-full rounded-lg border border-black/10 dark:border-white/10 bg-transparent px-4 py-3 text-sm outline-none focus:border-lime-500 text-neutral-900 dark:text-white"
+          className="w-full rounded-lg border border-zinc-300 dark:border-white/10 bg-zinc-50 dark:bg-transparent px-4 py-3 text-sm outline-none focus:border-emerald-500 dark:focus:border-lime-500 text-zinc-900 dark:text-white transition-colors"
         />
       </div>
 
@@ -170,8 +162,8 @@ export function ApplySidebar({ job, onSubmit }: any) {
         onKeyDown={(e) => e.key === "Enter" && inputRef.current?.click()}
         className={`flex min-h-[180px] cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed px-4 py-8 text-center transition-colors ${
           isDragging
-            ? "border-lime-400 bg-lime-400/10"
-            : "border-lime-500/70 bg-transparent hover:bg-lime-400/5"
+            ? "border-emerald-500 bg-emerald-500/10 dark:border-lime-400 dark:bg-lime-400/10"
+            : "border-emerald-500/60 dark:border-lime-500/70 bg-zinc-50 dark:bg-transparent hover:bg-emerald-500/5 dark:hover:bg-lime-400/5"
         }`}
       >
         <input
@@ -186,33 +178,31 @@ export function ApplySidebar({ job, onSubmit }: any) {
           <>
             <UploadCloud
               size={28}
-              className="text-lime-500"
+              className="text-emerald-600 dark:text-lime-500"
               strokeWidth={1.75}
             />
 
             <div>
-              <p className="text-sm font-semibold text-neutral-800 dark:text-neutral-100">
+              <p className="text-sm font-semibold text-zinc-900 dark:text-neutral-100">
                 Upload CV / Resume
               </p>
 
-              <p className="mt-1 text-xs text-neutral-400 dark:text-neutral-500">
+              <p className="mt-1 text-xs text-zinc-500 dark:text-neutral-500">
                 PDF only (Max 10MB)
               </p>
             </div>
           </>
         ) : (
-          <div className="flex items-center gap-2 rounded-md bg-black/5 dark:bg-white/10 px-3 py-2 text-sm">
-            <FileCheck2 size={16} className="text-lime-500" />
-
+          <div className="flex items-center gap-2 rounded-md bg-zinc-100 dark:bg-white/10 px-3 py-2 text-sm text-zinc-900 dark:text-white">
+            <FileCheck2 size={16} className="text-emerald-600 dark:text-lime-500" />
             <span className="max-w-[180px] truncate">{file.name}</span>
-
             <button
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 setFile(null);
               }}
-              className="text-neutral-400 hover:text-white"
+              className="text-zinc-500 hover:text-black dark:text-neutral-400 dark:hover:text-white"
             >
               <X size={14} />
             </button>
@@ -223,16 +213,16 @@ export function ApplySidebar({ job, onSubmit }: any) {
       {/* ATS Tips */}
       <details
         open
-        className="group rounded-xl border border-black/10 dark:border-white/10 bg-lime-400/5 px-4 py-3 open:pb-4"
+        className="group rounded-xl border border-zinc-200 dark:border-white/10 bg-emerald-50/50 dark:bg-lime-400/5 px-4 py-3 open:pb-4"
       >
-        <summary className="flex cursor-pointer list-none items-center justify-between text-sm font-semibold text-neutral-800 dark:text-neutral-100">
+        <summary className="flex cursor-pointer list-none items-center justify-between text-sm font-semibold text-zinc-800 dark:text-neutral-100">
           Tips to improve your CV's ATS score
-          <span className="text-lime-500 transition-transform group-open:rotate-180">
+          <span className="text-emerald-600 dark:text-lime-500 transition-transform group-open:rotate-180">
             ▾
           </span>
         </summary>
 
-        <ul className="mt-3 space-y-1.5 text-xs leading-relaxed text-neutral-500 dark:text-neutral-400">
+        <ul className="mt-3 space-y-1.5 text-xs leading-relaxed text-zinc-600 dark:text-neutral-400">
           <li>
             • Use a simple, single-column layout — avoid tables, text boxes, and
             multi-column designs.
@@ -273,14 +263,13 @@ export function ApplySidebar({ job, onSubmit }: any) {
         type="button"
         onClick={handleSubmit}
         disabled={submitting}
-        className="flex items-center justify-center gap-2 rounded-lg bg-neutral-900 dark:bg-white px-5 py-3.5 text-sm font-bold uppercase tracking-wide text-white dark:text-black hover:opacity-90 disabled:opacity-60"
+        className="flex items-center justify-center gap-2.5 rounded-xl bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 px-6 py-4 text-sm font-extrabold uppercase tracking-wider hover:bg-zinc-800 dark:hover:bg-zinc-100 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer select-none"
       >
         {submitting ? "Submitting…" : "Submit Application"}
-
         <ArrowRight size={16} strokeWidth={2.5} />
       </button>
 
-      <p className="text-center text-[11px] leading-snug text-neutral-400 dark:text-neutral-500">
+      <p className="text-center text-[11px] leading-snug text-zinc-500 dark:text-neutral-500">
         By submitting, you agree to our Precision Recruiting{" "}
         <span className="italic">Privacy Protocol</span>.
       </p>
@@ -288,10 +277,6 @@ export function ApplySidebar({ job, onSubmit }: any) {
       {status !== "idle" && (
         <ApplicationStatusModal
           status={status}
-          // onRetry={handleSubmit}
-          // onCancel={() => setStatus("idle")}
-          // onGoToDashboard={() => router.push("/dashboard")}
-          // onViewStatus={() => router.push("/applications")}
         />
       )}
     </aside>

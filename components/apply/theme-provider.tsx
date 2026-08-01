@@ -18,25 +18,23 @@ interface ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
-const STORAGE_KEY = 'jd-viewer-theme';
+const STORAGE_KEY = 'theme';
 
 /**
  * Self-contained theme provider.
  *
- * This is intentionally NOT wired into next-themes or a root layout —
- * it manages its own class on a local wrapper <div> so the whole
- * job-posting page can be dropped into any app (or any layout) and
- * still support dark/light mode independently.
+ * It manages its own class on a local wrapper <div> so the whole
+ * job-posting page supports light/dark mode with localStorage.
  */
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('dark');
+  const [theme, setTheme] = useState<Theme>('light');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY) as Theme | null;
     if (stored === 'dark' || stored === 'light') {
       setTheme(stored);
-    } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+    } else {
       setTheme('light');
     }
     setMounted(true);

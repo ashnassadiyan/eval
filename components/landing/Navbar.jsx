@@ -11,8 +11,13 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background">
       <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between px-4 md:px-12">
-        <Link href="/" className="flex items-center gap-2 font-extrabold text-xl tracking-tight">
-          EVAL
+        <Link href="/" className="flex items-center gap-2.5 font-extrabold text-xl tracking-tight">
+          <img
+            src="/logo.png"
+            alt="EvalCv Logo"
+            className="w-8 h-8 rounded-lg object-cover border border-border shadow-xs"
+          />
+          <span>EVAL</span>
         </Link>
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
           <a href="#why-us" className="text-muted-foreground hover:text-foreground transition-colors">

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   TrendingUp,
   CheckCircle2,
@@ -14,6 +14,9 @@ import {
   Filter,
   Plus,
   Share,
+  Download,
+  FileSpreadsheet,
+  FileType,
 } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 import CandidateService from "@/store/services/candidate.service";
@@ -40,7 +43,7 @@ const STATUS_OPTIONS = [
 function Skeleton({ className = "" }) {
   return (
     <span
-      className={`inline-block animate-pulse rounded-md bg-white/10 ${className}`}
+      className={`inline-block animate-pulse rounded-md bg-zinc-200 dark:bg-white/10 ${className}`}
     />
   );
 }
@@ -61,19 +64,19 @@ function ConfirmModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
-      <div className="w-full max-w-sm rounded-xl border border-white/15 bg-[#111111] p-6 shadow-2xl">
-        <h3 className="text-sm font-bold tracking-widest text-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 dark:bg-black/70 px-4 backdrop-blur-xs">
+      <div className="w-full max-w-sm rounded-xl border border-zinc-200 dark:border-white/15 bg-white dark:bg-[#111111] p-6 shadow-2xl">
+        <h3 className="text-sm font-bold tracking-widest text-zinc-900 dark:text-white">
           {title}
         </h3>
-        <p className="mt-3 text-sm leading-relaxed text-white/60">{message}</p>
+        <p className="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-white/60">{message}</p>
 
         <div className="mt-6 flex justify-end gap-3">
           <button
             type="button"
             onClick={onCancel}
             disabled={busy}
-            className="rounded-md border border-white/15 px-5 py-2.5 text-xs font-bold tracking-widest text-white/60 transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-md border border-zinc-300 dark:border-white/15 px-5 py-2.5 text-xs font-bold tracking-widest text-zinc-600 dark:text-white/60 transition-colors hover:text-black dark:hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
           >
             CANCEL
           </button>
@@ -81,7 +84,7 @@ function ConfirmModal({
             type="button"
             onClick={onConfirm}
             disabled={busy}
-            className="rounded-md bg-white px-5 py-2.5 text-xs font-bold tracking-widest text-black transition hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-md bg-black text-white dark:bg-white dark:text-black px-5 py-2.5 text-xs font-bold tracking-widest transition hover:bg-zinc-800 dark:hover:bg-white/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {busy ? "UPDATING..." : confirmLabel}
           </button>
@@ -95,7 +98,7 @@ function PageHeader({ roleName, onAddCandidate, jobLoading, jobShare }) {
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <span className="text-xs font-semibold tracking-widest text-white/40">
+        <span className="text-xs font-semibold tracking-widest text-zinc-500 dark:text-white/40">
           JOB INSIGHT
         </span>
         {jobLoading ? (
@@ -103,7 +106,7 @@ function PageHeader({ roleName, onAddCandidate, jobLoading, jobShare }) {
             <Skeleton className="h-8 w-56 sm:h-9 sm:w-72" />
           </div>
         ) : (
-          <h1 className="mt-1 text-2xl font-extrabold uppercase tracking-tight text-white sm:text-3xl">
+          <h1 className="mt-1 text-2xl font-extrabold uppercase tracking-tight text-zinc-900 dark:text-white sm:text-3xl">
             {roleName}
           </h1>
         )}
@@ -113,10 +116,9 @@ function PageHeader({ roleName, onAddCandidate, jobLoading, jobShare }) {
         <button
           type="button"
           onClick={jobShare}
-          className="inline-flex items-center gap-2 rounded-md px-6 py-3 text-xs font-bold tracking-widest text-black transition-transform hover:scale-[1.02] active:scale-[0.98]"
+          className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-xs font-bold tracking-widest text-black transition-all hover:scale-[1.03] hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] cursor-pointer select-none"
           style={{
             backgroundColor: NEON.yellow,
-            boxShadow: `0 0 24px ${NEON.green}55, 0 0 4px ${NEON.green}AA`,
           }}
         >
           <Share size={14} strokeWidth={2.5} />
@@ -126,10 +128,9 @@ function PageHeader({ roleName, onAddCandidate, jobLoading, jobShare }) {
         <button
           type="button"
           onClick={onAddCandidate}
-          className="inline-flex items-center gap-2 rounded-md px-6 py-3 text-xs font-bold tracking-widest text-black transition-transform hover:scale-[1.02] active:scale-[0.98]"
+          className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-xs font-bold tracking-widest text-black transition-all hover:scale-[1.03] hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] cursor-pointer select-none"
           style={{
             backgroundColor: NEON.green,
-            boxShadow: `0 0 24px ${NEON.green}55, 0 0 4px ${NEON.green}AA`,
           }}
         >
           <Plus size={14} strokeWidth={2.5} />
@@ -148,7 +149,7 @@ function RangeStyles() {
         appearance: none;
         width: 100%;
         height: 2px;
-        background: rgba(255,255,255,0.15);
+        background: rgba(160,160,160,0.3);
         border-radius: 999px;
         outline: none;
       }
@@ -158,33 +159,29 @@ function RangeStyles() {
         width: 16px;
         height: 16px;
         border-radius: 999px;
-        background: #ffffff;
+        background: #000000;
         cursor: pointer;
         border: none;
-        box-shadow: 0 0 0 4px rgba(0,0,0,0.4);
+        box-shadow: 0 0 0 4px rgba(0,0,0,0.1);
       }
-      input[type="range"].ji-range::-moz-range-thumb {
-        width: 16px;
-        height: 16px;
-        border-radius: 999px;
+      .dark input[type="range"].ji-range::-webkit-slider-thumb {
         background: #ffffff;
-        cursor: pointer;
-        border: none;
-        box-shadow: 0 0 0 4px rgba(0,0,0,0.4);
+        box-shadow: 0 0 0 4px rgba(255,255,255,0.2);
       }
       input[type="date"].ji-date::-webkit-calendar-picker-indicator {
         filter: invert(1);
         opacity: 0.6;
         cursor: pointer;
       }
+      .dark input[type="date"].ji-date::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+      }
     `}</style>
   );
 }
 
 function ToggleSwitch({ checked, onChange }) {
-  // checked === true means the position is OPEN, false means CLOSED.
   const activeColor = checked ? NEON.green : NEON.yellow;
-  console.log("top-bar", checked);
 
   return (
     <button
@@ -208,20 +205,81 @@ function ToggleSwitch({ checked, onChange }) {
   );
 }
 
+function DownloadDropdown({ onExportExcel, onExportCsv, onExportPdf }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (ref.current && !ref.current.contains(e.target)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const options = [
+    { label: "Excel", icon: FileSpreadsheet, onClick: onExportExcel },
+    { label: "CSV", icon: FileText, onClick: onExportCsv },
+    { label: "PDF", icon: FileType, onClick: onExportPdf },
+  ];
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="inline-flex items-center gap-2 rounded-md border border-zinc-300 dark:border-white/15 bg-white dark:bg-transparent px-4 py-2 text-xs font-bold tracking-widest text-zinc-700 dark:text-white/70 transition hover:border-zinc-400 dark:hover:border-white/40 hover:text-black dark:hover:text-white shadow-xs"
+      >
+        <Download size={14} strokeWidth={2} />
+        DOWNLOAD
+        <ChevronDown
+          size={14}
+          strokeWidth={2}
+          className={`transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      {open && (
+        <div className="absolute right-0 z-10 mt-2 w-40 overflow-hidden rounded-md border border-zinc-200 dark:border-white/10 bg-white dark:bg-[#0d0d0d] shadow-lg shadow-black/20">
+          {options.map(({ label, icon: Icon, onClick }) => (
+            <button
+              key={label}
+              type="button"
+              onClick={() => {
+                onClick?.();
+                setOpen(false);
+              }}
+              className="flex w-full items-center gap-2 px-4 py-2.5 text-left text-xs font-semibold tracking-widest text-zinc-700 dark:text-white/70 transition hover:bg-zinc-100 dark:hover:bg-white/10 hover:text-black dark:hover:text-white"
+            >
+              <Icon size={14} strokeWidth={2} />
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function TopBar({
-  closePosition, // true = job is OPEN, false = job is CLOSED
+  closePosition,
   onToggleClose,
   deadline,
   onDeadlineChange,
   jobLoading,
   isDirty,
   onUpdate,
+  onExportExcel,
+  onExportCsv,
+  onExportPdf,
 }) {
   return (
-    <div className="flex flex-col gap-4 rounded-xl border border-white/10 bg-[#0d0d0d] px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-4 rounded-xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-[#0d0d0d] px-6 py-5 sm:flex-row sm:items-center sm:justify-between shadow-xs">
       <div className="flex flex-wrap items-center gap-6">
         <div className="flex items-center gap-3">
-          <span className="text-xs font-semibold tracking-widest text-white/60">
+          <span className="text-xs font-semibold tracking-widest text-zinc-600 dark:text-white/60">
             {closePosition ? "CLOSE JOB" : "OPEN JOB"}
           </span>
           {jobLoading ? (
@@ -232,7 +290,7 @@ function TopBar({
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="text-xs font-semibold tracking-widest text-white/60">
+          <span className="text-xs font-semibold tracking-widest text-zinc-600 dark:text-white/60">
             DEADLINE
           </span>
           {jobLoading ? (
@@ -242,8 +300,7 @@ function TopBar({
               type="date"
               value={deadline}
               onChange={(e) => onDeadlineChange(e.target.value)}
-              className="ji-date rounded-md border border-white/15 bg-transparent px-3 py-1.5 text-sm text-white outline-none focus:border-white/40"
-              style={{ colorScheme: "dark" }}
+              className="ji-date rounded-md border border-zinc-300 dark:border-white/15 bg-white dark:bg-transparent px-3 py-1.5 text-sm text-zinc-900 dark:text-white outline-none focus:border-zinc-400 dark:focus:border-white/40"
             />
           )}
         </div>
@@ -252,20 +309,27 @@ function TopBar({
           <button
             type="button"
             onClick={onUpdate}
-            className="inline-flex items-center gap-2 rounded-md bg-white px-5 py-2 text-xs font-bold tracking-widest text-black transition hover:bg-white/90"
+            className="inline-flex items-center gap-2 rounded-md bg-black text-white dark:bg-white dark:text-black px-5 py-2 text-xs font-bold tracking-widest transition hover:bg-zinc-800 dark:hover:bg-white/90 shadow-sm"
           >
             UPDATE
           </button>
         )}
       </div>
 
-      <button
-        type="button"
-        className="inline-flex items-center gap-2 text-xs font-bold tracking-widest text-white/70 transition-colors hover:text-white"
-      >
-        <Clock size={14} strokeWidth={2} />
-        JOB STATUS &amp; TIMELINE
-      </button>
+      <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+        <DownloadDropdown
+          onExportExcel={onExportExcel}
+          onExportCsv={onExportCsv}
+          onExportPdf={onExportPdf}
+        />
+        <button
+          type="button"
+          className="inline-flex items-center gap-2 text-xs font-bold tracking-widest text-zinc-600 dark:text-white/70 transition-colors hover:text-black dark:hover:text-white"
+        >
+          <Clock size={14} strokeWidth={2} />
+          JOB STATUS &amp; TIMELINE
+        </button>
+      </div>
     </div>
   );
 }
@@ -274,10 +338,10 @@ function FilterSlider({ label, value, onChange }) {
   return (
     <div className="flex-1">
       <div className="mb-3 flex items-center justify-between">
-        <span className="text-xs font-semibold tracking-widest text-white/60">
+        <span className="text-xs font-semibold tracking-widest text-zinc-600 dark:text-white/60">
           {label}
         </span>
-        <span className="text-xs font-bold text-white">{value}% - 100%</span>
+        <span className="text-xs font-bold text-zinc-900 dark:text-white">{value}% - 100%</span>
       </div>
       <input
         type="range"
@@ -297,10 +361,10 @@ function StatusSelect({ value, onChange }) {
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full appearance-none rounded-md border border-white/15 bg-[#0d0d0d] px-4 py-3 text-sm text-white outline-none focus:border-white/40"
+        className="w-full appearance-none rounded-md border border-zinc-300 dark:border-white/15 bg-white dark:bg-[#0d0d0d] px-4 py-3 text-sm text-zinc-900 dark:text-white outline-none focus:border-zinc-400 dark:focus:border-white/40"
       >
         {STATUS_OPTIONS.map((opt) => (
-          <option key={opt.value} value={opt.value} className="bg-[#0d0d0d]">
+          <option key={opt.value} value={opt.value} className="bg-white text-black dark:bg-[#0d0d0d] dark:text-white">
             {opt.label.toUpperCase()}
           </option>
         ))}
@@ -308,34 +372,29 @@ function StatusSelect({ value, onChange }) {
       <ChevronDown
         size={16}
         strokeWidth={2}
-        className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-white/50"
+        className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-white/50"
       />
     </div>
   );
 }
 
-// ---------------------------------------------------------------------------
-// FiltersPanel now edits a *draft* filter state and only reports it upward
-// when "Apply Filters" is pressed. `isDirty` lights the button up so it's
-// obvious when there are unapplied changes.
-// ---------------------------------------------------------------------------
 function FiltersPanel({ filters, onChange, onApply, onReset, isDirty }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-[#0d0d0d] px-6 py-6">
+    <div className="rounded-xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-[#0d0d0d] px-6 py-6 shadow-xs transition-colors">
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <SlidersHorizontal
             size={16}
             strokeWidth={2}
-            className="text-white/70"
+            className="text-zinc-600 dark:text-white/70"
           />
-          <span className="text-sm font-bold tracking-widest text-white">
+          <span className="text-sm font-bold tracking-widest text-zinc-900 dark:text-white">
             CANDIDATE FILTERS
           </span>
         </div>
 
         {isDirty && (
-          <span className="text-xs font-semibold tracking-widest text-white/40">
+          <span className="text-xs font-semibold tracking-widest text-amber-600 dark:text-white/40">
             UNAPPLIED CHANGES
           </span>
         )}
@@ -361,7 +420,7 @@ function FiltersPanel({ filters, onChange, onApply, onReset, isDirty }) {
 
       <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <span className="mb-3 block text-xs font-semibold tracking-widest text-white/60">
+          <span className="mb-3 block text-xs font-semibold tracking-widest text-zinc-600 dark:text-white/60">
             STATUS FILTER
           </span>
           <StatusSelect
@@ -374,14 +433,14 @@ function FiltersPanel({ filters, onChange, onApply, onReset, isDirty }) {
           <button
             type="button"
             onClick={onReset}
-            className="rounded-md border border-white/15 px-5 py-3 text-xs font-bold tracking-widest text-white/60 transition-colors hover:text-white"
+            className="rounded-md border border-zinc-300 dark:border-white/15 px-5 py-3 text-xs font-bold tracking-widest text-zinc-600 dark:text-white/60 transition-colors hover:text-black dark:hover:text-white"
           >
             RESET
           </button>
           <button
             type="button"
             onClick={onApply}
-            className="inline-flex items-center gap-2 rounded-md bg-white px-6 py-3 text-xs font-bold tracking-widest text-black transition hover:bg-white/90"
+            className="inline-flex items-center gap-2 rounded-md bg-black text-white dark:bg-white dark:text-black px-6 py-3 text-xs font-bold tracking-widest transition hover:bg-zinc-800 dark:hover:bg-white/90 shadow-sm"
           >
             <Filter size={14} strokeWidth={2} />
             APPLY FILTERS
@@ -394,18 +453,18 @@ function FiltersPanel({ filters, onChange, onApply, onReset, isDirty }) {
 
 function EmptyState({ roleName, onAddCandidate }) {
   return (
-    <div className="flex flex-col items-center rounded-2xl border-2 border-dashed border-white/15 px-6 py-16 text-center">
-      <div className="mb-8 flex h-16 w-16 items-center justify-center rounded-xl bg-[#1c1c1c]">
-        <UploadCloud size={26} strokeWidth={1.5} className="text-white/70" />
+    <div className="flex flex-col items-center rounded-2xl border-2 border-dashed border-zinc-300 dark:border-white/15 bg-white dark:bg-transparent px-6 py-16 text-center">
+      <div className="mb-8 flex h-16 w-16 items-center justify-center rounded-xl bg-zinc-100 dark:bg-[#1c1c1c]">
+        <UploadCloud size={26} strokeWidth={1.5} className="text-zinc-600 dark:text-white/70" />
       </div>
 
-      <h2 className="text-3xl font-extrabold uppercase tracking-tight text-white sm:text-4xl">
+      <h2 className="text-3xl font-extrabold uppercase tracking-tight text-zinc-900 dark:text-white sm:text-4xl">
         No candidates yet
       </h2>
 
-      <p className="mt-4 max-w-xl text-base leading-relaxed text-white/60">
+      <p className="mt-4 max-w-xl text-base leading-relaxed text-zinc-600 dark:text-white/60">
         The recruitment pipeline for{" "}
-        <span className="font-semibold text-white">{roleName}</span> is
+        <span className="font-semibold text-zinc-900 dark:text-white">{roleName}</span> is
         currently offline. Initial data ingestion is required to activate AI
         screening protocols.
       </p>
@@ -413,13 +472,13 @@ function EmptyState({ roleName, onAddCandidate }) {
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
         <button
           onClick={onAddCandidate}
-          className="rounded-md bg-white px-6 py-3 text-xs font-bold tracking-widest text-black transition hover:bg-white/90"
+          className="rounded-md bg-black text-white dark:bg-white dark:text-black px-6 py-3 text-xs font-bold tracking-widest transition hover:bg-zinc-800 dark:hover:bg-white/90 shadow-sm"
         >
           ADD NEW CANDIDATE
         </button>
       </div>
 
-      <p className="mt-10 text-xs font-medium tracking-widest text-white/30">
+      <p className="mt-10 text-xs font-medium tracking-widest text-zinc-400 dark:text-white/30">
         DROP CVS DIRECTLY HERE TO START BATCH PROCESSING
       </p>
     </div>
@@ -433,8 +492,6 @@ const DEFAULT_FILTERS = {
   status: "all",
 };
 
-// Coerce whatever the API sends for a boolean-ish field ("true"/"false",
-// 1/0, true/false) into an actual boolean.
 function toBool(value) {
   if (typeof value === "boolean") return value;
   if (typeof value === "number") return value === 1;
@@ -442,10 +499,6 @@ function toBool(value) {
   return Boolean(value);
 }
 
-// <input type="date"> only accepts a strict "YYYY-MM-DD" string — if the
-// API sends a full ISO timestamp (or a Date-like value), the input just
-// renders blank even though the value is present. Normalize whatever we
-// get into the format the date picker actually understands.
 function toDateInputValue(value) {
   if (!value) return "";
   if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
@@ -459,14 +512,9 @@ export default function JobInsight({ roleName = "Neural Architect" }) {
   const params = useParams();
   const id = params?.id || params?.[":id"];
 
-  // "Saved" values — what's actually persisted on the server, used to
-  // detect whether the draft below has unsaved changes.
   const [closePosition, setClosePosition] = useState(false);
   const [deadline, setDeadline] = useState("2024-12-31");
 
-  // "Draft" values — what the toggle/date input currently show. These are
-  // only pushed to the API when the UPDATE button is pressed (and
-  // confirmed), instead of auto-saving on every click/keystroke.
   const [draftClosePosition, setDraftClosePosition] = useState(false);
   const [draftDeadline, setDraftDeadline] = useState("2024-12-31");
 
@@ -496,17 +544,12 @@ export default function JobInsight({ roleName = "Neural Architect" }) {
       setDeadline(draftDeadline);
     } catch (err) {
       console.error("Failed to update job status/deadline:", err);
-      // Leave the draft as-is on failure so the user can retry without
-      // losing what they picked.
     } finally {
       setJobUpdating(false);
       setConfirmOpen(false);
     }
   };
 
-  // Draft = what the sliders/select currently show.
-  // Applied = what's actually used to filter the table.
-  // They only sync when "Apply Filters" is clicked.
   const [draftFilters, setDraftFilters] = useState(DEFAULT_FILTERS);
   const [appliedFilters, setAppliedFilters] = useState(DEFAULT_FILTERS);
 
@@ -523,9 +566,6 @@ export default function JobInsight({ roleName = "Neural Architect" }) {
     const fetchCandidates = async () => {
       setLoading(true);
       try {
-        // Filtering now happens server-side — pass the *applied* filters
-        // through as query params so the API returns only matching rows,
-        // already paginated against those filters.
         const response = await CandidateService.getCandidates(
           id,
           page,
@@ -543,14 +583,11 @@ export default function JobInsight({ roleName = "Neural Architect" }) {
           resData.data ||
           (Array.isArray(resData) ? resData : []);
 
-        // Your API returns both `total` (all candidates for this job,
-        // ignoring filters) and `filtered` (count matching the current
-        // ats/pro/match filters). Pagination has to be driven by whichever
-        // count the current page of `data` was actually sliced from —
-
         const mapped = rawCandidates.map((c) => ({
           id: c._id || c.id || "N/A",
-          name: c.name || c.candidateName || "Unnamed Candidate",
+          name: c.name || c.candidateName || c.candidate_name || "Unnamed Candidate",
+          email: c.email || c.candidate_email || c.contact_email || "N/A",
+          phone: c.phone || c.phone_number || c.candidate_phone || "N/A",
           cvFile: c.cvFile || c.cvUrl || c.cv || "cv.pdf",
           final_verdict: c.final_verdict,
           atsScore:
@@ -592,12 +629,6 @@ export default function JobInsight({ roleName = "Neural Architect" }) {
         const details = response.data.job_details;
         setJob(details);
 
-        // Sync job-derived fields once the real data arrives. The API's
-        // field name for the closed flag isn't fixed in stone, so check
-        // a few likely variants and coerce whatever comes back to a real
-        // boolean — otherwise a value like "true" (string) or 1 fails the
-        // `!== undefined` check's intent and the switch silently stays on
-        // its default (open/green) even when the job is actually closed.
         const rawClosed = details?.status;
 
         if (rawClosed !== undefined) {
@@ -606,10 +637,6 @@ export default function JobInsight({ roleName = "Neural Architect" }) {
           setDraftClosePosition(closedBool);
         }
 
-        // job.deadline needs normalizing to what <input type="date">
-        // expects — a bare ISO timestamp or Date-ish value won't render
-        // in the picker otherwise, which is why the initial value looked
-        // like it was missing.
         const formattedDeadline = toDateInputValue(details?.deadline);
         if (formattedDeadline) {
           setDeadline(formattedDeadline);
@@ -643,7 +670,7 @@ export default function JobInsight({ roleName = "Neural Architect" }) {
 
   const handleApplyFilters = () => {
     setAppliedFilters(draftFilters);
-    setPage(1); // reset pagination whenever the applied filter set changes
+    setPage(1);
   };
 
   const handleResetFilters = () => {
@@ -652,14 +679,80 @@ export default function JobInsight({ roleName = "Neural Architect" }) {
     setPage(1);
   };
 
+  const handleExportCsv = () => {
+    if (!candidates || candidates.length === 0) return;
+    const headers = [
+      "ID",
+      "Name",
+      "Final Verdict",
+      "ATS Compatibility Score (%)",
+      "Overall Match (%)",
+      "Selection Probability (%)",
+    ];
+    const rows = candidates.map((c) => [
+      `"${c.id}"`,
+      `"${(c.name || "").replace(/"/g, '""')}"`,
+      `"${c.final_verdict || ""}"`,
+      c.atsScore || 0,
+      c.overallMatch || 0,
+      c.selectionProb || 0,
+    ]);
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute(
+      "download",
+      `${job?.job_title || "candidates"}_export.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleExportExcel = () => {
+    if (!candidates || candidates.length === 0) return;
+    const headers = [
+      "ID\tName\tFinal Verdict\tATS Compatibility Score (%)\tOverall Match (%)\tSelection Probability (%)",
+    ];
+    const rows = candidates.map((c) =>
+      [
+        c.id,
+        c.name || "",
+        c.final_verdict || "",
+        c.atsScore || 0,
+        c.overallMatch || 0,
+        c.selectionProb || 0,
+      ].join("\t")
+    );
+    const excelContent =
+      "data:application/vnd.ms-excel;charset=utf-8," +
+      [headers, ...rows].join("\n");
+    const encodedUri = encodeURI(excelContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute(
+      "download",
+      `${job?.job_title || "candidates"}_export.xls`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleExportPdf = () => {
+    window.print();
+  };
+
   const isDirty =
     JSON.stringify(draftFilters) !== JSON.stringify(appliedFilters);
 
-  // Remount the table whenever the *applied* filters change.
   const tableKey = JSON.stringify(appliedFilters);
 
   return (
-    <div className="w-full bg-black p-6 sm:p-10">
+    <div className="w-full bg-slate-50 dark:bg-black text-zinc-900 dark:text-white p-6 sm:p-10 transition-colors min-h-screen">
       <RangeStyles />
       <div className="mx-auto flex max-w-6xl flex-col gap-6">
         <PageHeader
@@ -676,6 +769,9 @@ export default function JobInsight({ roleName = "Neural Architect" }) {
           jobLoading={jobLoading}
           isDirty={isJobDirty}
           onUpdate={handleRequestUpdate}
+          onExportExcel={handleExportExcel}
+          onExportCsv={handleExportCsv}
+          onExportPdf={handleExportPdf}
         />
 
         <FiltersPanel
@@ -696,7 +792,7 @@ export default function JobInsight({ roleName = "Neural Architect" }) {
 
         {loading ? (
           <div className="flex justify-center py-12">
-            <span className="text-sm font-mono text-white/50">
+            <span className="text-sm font-mono text-zinc-500 dark:text-white/50">
               LOADING PIPELINE DATA...
             </span>
           </div>
