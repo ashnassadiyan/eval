@@ -172,7 +172,7 @@ export function InsightSection() {
               <p className="text-[11px] font-mono uppercase tracking-widest text-muted-foreground mb-3 font-bold">
                 Report Includes
               </p>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {reportFeatures.map(({ icon: Icon, label, desc }) => (
                   <div
                     key={label}

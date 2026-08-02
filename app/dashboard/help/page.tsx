@@ -228,7 +228,10 @@ export default function HelpPage() {
                   <MessageSquare className="w-5 h-5 text-emerald-500" /> Contact Support
                 </h3>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-                  Have a specific question or issue? Submit a message directly to technical support.
+                  Have a specific question or issue? Submit a message directly or email us at{" "}
+                  <a href="mailto:info@evalcv.app" className="text-primary font-bold hover:underline">
+                    info@evalcv.app
+                  </a>.
                 </p>
               </div>
 

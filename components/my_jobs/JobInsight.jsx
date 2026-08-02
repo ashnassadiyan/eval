@@ -112,11 +112,11 @@ function PageHeader({ roleName, onAddCandidate, jobLoading, jobShare }) {
         )}
       </div>
 
-      <div style={{ display: "flex", flexDirection: "row", gap: "10px" }}>
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
         <button
           type="button"
           onClick={jobShare}
-          className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-xs font-bold tracking-widest text-black transition-all hover:scale-[1.03] hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] cursor-pointer select-none"
+          className="inline-flex items-center justify-center gap-2 rounded-lg px-5 py-3 text-xs font-bold tracking-widest text-black transition-all hover:scale-[1.02] hover:shadow-md active:scale-[0.98] cursor-pointer select-none w-full sm:w-auto"
           style={{
             backgroundColor: NEON.yellow,
           }}
@@ -128,7 +128,7 @@ function PageHeader({ roleName, onAddCandidate, jobLoading, jobShare }) {
         <button
           type="button"
           onClick={onAddCandidate}
-          className="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-xs font-bold tracking-widest text-black transition-all hover:scale-[1.03] hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] cursor-pointer select-none"
+          className="inline-flex items-center justify-center gap-2 rounded-lg px-5 py-3 text-xs font-bold tracking-widest text-black transition-all hover:scale-[1.02] hover:shadow-md active:scale-[0.98] cursor-pointer select-none w-full sm:w-auto"
           style={{
             backgroundColor: NEON.green,
           }}
@@ -679,72 +679,38 @@ export default function JobInsight({ roleName = "Neural Architect" }) {
     setPage(1);
   };
 
-  const handleExportCsv = () => {
-    if (!candidates || candidates.length === 0) return;
-    const headers = [
-      "ID",
-      "Name",
-      "Final Verdict",
-      "ATS Compatibility Score (%)",
-      "Overall Match (%)",
-      "Selection Probability (%)",
-    ];
-    const rows = candidates.map((c) => [
-      `"${c.id}"`,
-      `"${(c.name || "").replace(/"/g, '""')}"`,
-      `"${c.final_verdict || ""}"`,
-      c.atsScore || 0,
-      c.overallMatch || 0,
-      c.selectionProb || 0,
-    ]);
-    const csvContent =
-      "data:text/csv;charset=utf-8," +
-      [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute(
-      "download",
-      `${job?.job_title || "candidates"}_export.csv`
-    );
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleDownloadReport = async (docType) => {
+    if (!id) return;
+    try {
+      const response = await CandidateService.downloadSelectedCandidates(id, docType);
+
+      let filename = `candidates_${id}.${docType === "excel" ? "xlsx" : docType}`;
+      const contentDisposition = response.headers?.["content-disposition"];
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename="?([^";]+)"?/);
+        if (match && match[1]) filename = match[1];
+      }
+
+      const blob = new Blob([response.data], {
+        type: response.headers?.["content-type"] || "application/octet-stream",
+      });
+
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.error(`Failed to download ${docType} report:`, err);
+    }
   };
 
-  const handleExportExcel = () => {
-    if (!candidates || candidates.length === 0) return;
-    const headers = [
-      "ID\tName\tFinal Verdict\tATS Compatibility Score (%)\tOverall Match (%)\tSelection Probability (%)",
-    ];
-    const rows = candidates.map((c) =>
-      [
-        c.id,
-        c.name || "",
-        c.final_verdict || "",
-        c.atsScore || 0,
-        c.overallMatch || 0,
-        c.selectionProb || 0,
-      ].join("\t")
-    );
-    const excelContent =
-      "data:application/vnd.ms-excel;charset=utf-8," +
-      [headers, ...rows].join("\n");
-    const encodedUri = encodeURI(excelContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute(
-      "download",
-      `${job?.job_title || "candidates"}_export.xls`
-    );
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const handleExportPdf = () => {
-    window.print();
-  };
+  const handleExportCsv = () => handleDownloadReport("csv");
+  const handleExportExcel = () => handleDownloadReport("excel");
+  const handleExportPdf = () => handleDownloadReport("pdf");
 
   const isDirty =
     JSON.stringify(draftFilters) !== JSON.stringify(appliedFilters);

@@ -64,6 +64,9 @@ api.interceptors.response.use(
       window.location.pathname.startsWith("/login") ||
       window.location.pathname.startsWith("/signup") ||
       window.location.pathname.startsWith("/apply") ||
+      window.location.pathname.startsWith("/contact-support") ||
+      window.location.pathname.startsWith("/privacy") ||
+      window.location.pathname.startsWith("/terms") ||
       window.location.pathname === "/";
 
     // If 401, 403, or explicit User Not Found error on a protected route or request:

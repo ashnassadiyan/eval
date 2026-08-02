@@ -14,6 +14,7 @@ interface User {
   phone?: string;
   user_type?: string;
   is_admin?: boolean;
+  is_active?: boolean;
   fcm_token?: string;
 }
 
@@ -62,50 +63,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Fetch full user profile details from backend
   const fetchUserProfile = useCallback(async (): Promise<User | null> => {
-    const endpoints = [
-      "/auth/user_insights",
-      "/auth/me",
-      "/auth/user",
-      "/user/profile",
-      "/users/me",
-    ];
+    try {
+      const response = await api.get("/auth/user_insights");
+      const data = response.data;
+      if (data) {
+        const rawUser = data.user || data.data || data;
+        const email = rawUser.email || rawUser.user_email || rawUser.username || "";
+        const rawName =
+          rawUser.name ||
+          rawUser.user_name ||
+          rawUser.full_name ||
+          rawUser.display_name ||
+          (email ? email.split("@")[0] : "");
 
-    for (const endpoint of endpoints) {
-      try {
-        const response = await api.get(endpoint);
-        const data = response.data;
-        if (data) {
-          const rawUser = data.user || data.data || data;
-          const email = rawUser.email || rawUser.user_email || rawUser.username || "";
-          const rawName =
-            rawUser.name ||
-            rawUser.full_name ||
-            rawUser.display_name ||
-            (email ? email.split("@")[0] : "");
+        const formattedName = rawName
+          ? rawName.charAt(0).toUpperCase() + rawName.slice(1)
+          : "Member";
 
-          const formattedName = rawName
-            ? rawName.charAt(0).toUpperCase() + rawName.slice(1)
-            : "Member";
+        const isActive =
+          rawUser.is_active !== undefined
+            ? Boolean(rawUser.is_active)
+            : true;
 
-          if (email || rawUser.id || rawUser._id) {
-            const userObj: User = {
-              id: rawUser.id || rawUser._id || rawUser.user_id || "1",
-              email: email || "user@evalcv.com",
-              name: formattedName,
-              phone: rawUser.phone || rawUser.phone_number || undefined,
-              user_type: rawUser.user_type || rawUser.role || "recruiter",
-              is_admin: rawUser.is_admin || rawUser.role === "admin" || false,
-              fcm_token: rawUser.fcm_token || localStorage.getItem("fcm_token") || undefined,
-            };
+        if (email || rawUser.id || rawUser._id) {
+          const userObj: User = {
+            id: rawUser.id || rawUser._id || rawUser.user_id || "1",
+            email: email || "user@evalcv.com",
+            name: formattedName,
+            phone: rawUser.phone || rawUser.phone_number || undefined,
+            user_type: rawUser.user_type || rawUser.role || "recruiter",
+            is_admin: rawUser.is_admin || rawUser.role === "admin" || rawUser.user_type === 2 || false,
+            is_active: isActive,
+            fcm_token: rawUser.fcm_token || rawUser.fcm || localStorage.getItem("fcm_token") || undefined,
+          };
 
-            return userObj;
-          }
-        }
-      } catch (err: any) {
-        if (err?.response?.status === 401 || err?.response?.status === 403) {
-          return null;
+          return userObj;
         }
       }
+    } catch (err: any) {
+      if (err?.response?.status === 401 || err?.response?.status === 403) {
+        return null;
+      }
+      console.warn("Failed to fetch user profile from /auth/user_insights:", err);
     }
     return null;
   }, []);
@@ -132,11 +131,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const fetchedUser = await fetchUserProfile();
 
           if (fetchedUser) {
-            const mergedUser = { ...parsedUser, ...fetchedUser };
-            setUser(mergedUser);
-            localStorage.setItem("user", JSON.stringify(mergedUser));
-            dispatch(getUserCredit());
-            ensureFcmTokenSync(mergedUser);
+            if (fetchedUser.is_active === false) {
+              console.warn("Backend user is inactive. Logging out.");
+              clearAuthCredentials();
+              setUser(null);
+              setToken(null);
+              setAuthError("Your account is currently inactive. Please contact support to reactivate your access.");
+            } else {
+              const mergedUser = { ...parsedUser, ...fetchedUser };
+              setUser(mergedUser);
+              localStorage.setItem("user", JSON.stringify(mergedUser));
+              dispatch(getUserCredit());
+              ensureFcmTokenSync(mergedUser);
+            }
           } else {
             // User not found or token invalid -> clear credentials and prompt login
             console.warn("Backend user validation failed. Logging out and asking for re-login.");
@@ -196,7 +203,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         // Fetch User profile from backend to ensure name and email are populated
         let finalUser: User | null = userData || null;
-        if (!finalUser || !finalUser.email || !finalUser.name) {
+        if (!finalUser || !finalUser.email || !finalUser.name || finalUser.is_active === undefined) {
           const fetched = await fetchUserProfile();
           if (fetched) {
             finalUser = { ...finalUser, ...fetched };
@@ -208,7 +215,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             id: "1",
             email: email,
             name: email.split("@")[0].charAt(0).toUpperCase() + email.split("@")[0].slice(1),
+            is_active: true,
           };
+        }
+
+        // Check if user is active
+        if (finalUser.is_active === false) {
+          clearAuthCredentials();
+          setToken(null);
+          setUser(null);
+          const inactiveMsg = "Your account is currently inactive. Please contact support to reactivate your access.";
+          setAuthError(inactiveMsg);
+          const customErr: any = new Error(inactiveMsg);
+          customErr.response = {
+            data: { detail: inactiveMsg }
+          };
+          throw customErr;
         }
 
         localStorage.setItem("user", JSON.stringify(finalUser));

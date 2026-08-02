@@ -1,17 +1,5 @@
-const columns = [
-  {
-    title: "Platform",
-    links: ["How It Works", "Features", "Pricing", "API"],
-  },
-  {
-    title: "Legal",
-    links: ["Privacy Policy", "Terms of Service", "Cookies"],
-  },
-  {
-    title: "Connect",
-    links: ["Twitter", "LinkedIn", "GitHub", "Contact"],
-  },
-];
+import Link from "next/link";
+import { Mail } from "lucide-react";
 
 export function Footer() {
   return (
@@ -30,31 +18,75 @@ export function Footer() {
             <p className="mt-3 max-w-xs text-sm text-muted-foreground">
               The intelligent layer between resumes and the right opportunities.
             </p>
+            <div className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+              <Mail className="w-4 h-4 text-primary shrink-0" />
+              <a href="mailto:info@evalcv.app" className="font-medium hover:text-foreground transition-colors">
+                info@evalcv.app
+              </a>
+            </div>
           </div>
 
-          {columns.map((col) => (
-            <div key={col.title}>
-              <p className="text-label-md uppercase">{col.title}</p>
-              <ul className="mt-4 space-y-3">
-                {col.links.map((link) => (
-                  <li key={link}>
-                    <a
-                      href="#"
-                      className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                      {link}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-foreground">Platform</p>
+            <ul className="mt-4 space-y-3">
+              <li>
+                <a href="#how-it-works" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                  How It Works
+                </a>
+              </li>
+              <li>
+                <a href="#why-us" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                  Features
+                </a>
+              </li>
+              <li>
+                <Link href="/dashboard/evaluate" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                  Evaluate CV
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-foreground">Legal</p>
+            <ul className="mt-4 space-y-3">
+              <li>
+                <Link href="/privacy" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                  Terms of Service
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-foreground">Contact</p>
+            <ul className="mt-4 space-y-3">
+              <li>
+                <Link href="/contact-support" className="text-sm text-muted-foreground transition-colors hover:text-foreground flex items-center gap-1.5">
+                  Contact Us
+                </Link>
+              </li>
+              <li>
+                <a href="mailto:info@evalcv.app" className="text-sm font-semibold text-primary transition-colors hover:underline">
+                  info@evalcv.app
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
 
-        <div className="mt-12 border-t border-border pt-6">
-          <p className="text-label-sm uppercase tracking-wider text-muted-foreground">
+        <div className="mt-12 border-t border-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs tracking-wider text-muted-foreground uppercase">
             © 2024 EVAL. All rights reserved.
           </p>
+          <a href="mailto:info@evalcv.app" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+            info@evalcv.app
+          </a>
         </div>
       </div>
     </footer>

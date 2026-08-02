@@ -100,14 +100,17 @@ function SkeletonBar({ className = "" }: { className?: string }) {
 
 function StatCardSkeleton() {
   return (
-    <div className="relative bg-white dark:bg-[#0a0a0a] border border-zinc-200 dark:border-zinc-800/80 p-6 overflow-hidden">
+    <div className="relative overflow-hidden rounded-3xl border border-border/80 bg-card/70 p-6 sm:p-7 flex flex-col justify-between">
       <div className="flex items-center justify-between mb-6">
         <SkeletonBar className="h-3 w-28" />
         <SkeletonBar className="size-4" />
       </div>
       <SkeletonBar className="h-9 w-24 mb-5" />
-      <SkeletonBar className="h-1.5 w-full mb-3" />
-      <SkeletonBar className="h-3 w-32" />
+      <SkeletonBar className="h-2 w-full mb-4" />
+      <div className="pt-4 border-t border-border/60 flex justify-between">
+        <SkeletonBar className="h-3 w-20" />
+        <SkeletonBar className="h-3 w-24" />
+      </div>
     </div>
   );
 }
@@ -208,8 +211,24 @@ export default function DashboardClient() {
   const insightsRevealed = useReveal(!loadingInsights, 100);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-black text-zinc-900 dark:text-white px-6 sm:px-10 py-8 font-sans transition-colors">
-      <div className="mx-auto w-full max-w-[1400px]">
+    <div className="relative min-h-screen bg-background text-foreground px-6 sm:px-10 py-8 font-sans transition-colors overflow-hidden">
+      {/* Background Lighting & Grid Pattern from ProcessSection */}
+      <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
+        <div className="absolute -left-40 top-1/4 h-[500px] w-[500px] rounded-full bg-primary/10 blur-[150px] animate-pulse" />
+        <div
+          className="absolute -right-40 bottom-1/4 h-[500px] w-[500px] rounded-full bg-primary/10 blur-[150px] animate-pulse"
+          style={{ animationDelay: "2s" }}
+        />
+        <div
+          className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]"
+          style={{
+            backgroundImage: `linear-gradient(to right, currentColor 1px, transparent 1px), linear-gradient(to bottom, currentColor 1px, transparent 1px)`,
+            backgroundSize: "60px 60px",
+          }}
+        />
+      </div>
+
+      <div className="relative mx-auto w-full max-w-[1400px]">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 pb-6 border-b border-zinc-200 dark:border-zinc-800/80">
           <div>
@@ -229,101 +248,150 @@ export default function DashboardClient() {
         </div>
 
         {/* Stat cards grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
-          {/* Token Usage */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6 mb-8">
+          {/* Card 1: Token Usage */}
           {loadingCredits ? (
             <StatCardSkeleton />
           ) : (
-            <div className="relative rounded-2xl bg-white dark:bg-[#0a0a0c] border border-zinc-200/90 dark:border-zinc-800/80 p-6 transition-all duration-300 hover:border-zinc-400 dark:hover:border-zinc-600 hover:-translate-y-1 shadow-xs hover:shadow-lg dark:hover:shadow-zinc-950/40">
-              <div className="flex items-center justify-between mb-5">
-                <span className="text-[11px] font-mono font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
-                  Token Usage
-                </span>
-                <Zap className="size-4 text-zinc-700 dark:text-zinc-300" />
-              </div>
-              <div className="flex items-baseline gap-1.5 mb-4">
-                <CountUpNumber
-                  value={balance ?? 0}
-                  delay={150}
-                  duration={1400}
-                  className="text-3xl sm:text-4xl font-black text-zinc-900 dark:text-white"
-                />
-                <span className="text-xs text-zinc-500 font-mono">
-                  / {(total_added ?? 0).toLocaleString()}
-                </span>
-              </div>
-              <div className="h-1.5 rounded-full bg-zinc-100 dark:bg-zinc-900 mb-3 overflow-hidden">
-                <div
-                  className="h-full bg-zinc-900 dark:bg-white rounded-full transition-all duration-[1400ms] ease-out"
-                  style={{ width: `${creditsRevealed ? usedPct : 0}%` }}
-                />
-              </div>
-              <p className="text-[10px] font-mono uppercase tracking-wider text-zinc-500">
-                {hasCreditData
-                  ? `${usedPct}% balance available`
-                  : "No credit usage recorded"}
-              </p>
-            </div>
-          )}
+            <div className="relative overflow-hidden rounded-3xl border border-border/80 bg-card/70 backdrop-blur-xl p-6 sm:p-7 transition-all duration-500 flex flex-col justify-between hover:border-primary/40 hover:bg-card hover:scale-[1.01] shadow-xl shadow-black/5 dark:shadow-black/20">
+              {/* Top Laser Accent Line */}
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent animate-pulse" />
 
-          {/* Active Jobs stat */}
-          {loadingInsights ? (
-            <StatCardSkeleton />
-          ) : (
-            <div className="relative rounded-2xl bg-white dark:bg-[#0a0a0c] border border-zinc-200/90 dark:border-zinc-800/80 p-6 transition-all duration-300 hover:border-zinc-400 dark:hover:border-zinc-600 hover:-translate-y-1 shadow-xs hover:shadow-lg dark:hover:shadow-zinc-950/40">
-              <div className="flex items-center justify-between mb-5">
-                <span className="text-[11px] font-mono font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
-                  Active Jobs
-                </span>
-                <Briefcase className="size-4 text-zinc-700 dark:text-zinc-300" />
-              </div>
-              <div className="flex items-baseline gap-2 mb-4">
-                <CountUpNumber
-                  value={jobsCount}
-                  delay={400}
-                  duration={1500}
-                  className="text-3xl sm:text-4xl font-black text-zinc-900 dark:text-white"
-                />
-              </div>
-              <div className="flex items-end gap-1.5 h-8">
-                {sparkline.map((h, i) => (
-                  <div
-                    key={i}
-                    className="flex-1 rounded-xs bg-zinc-300 dark:bg-zinc-700 hover:bg-zinc-900 dark:hover:bg-white transition-all duration-500"
-                    style={{
-                      height: insightsRevealed ? `${Math.max(h, 8)}%` : "0%",
-                      transitionDelay: `${400 + i * 60}ms`,
-                    }}
+              <div>
+                {/* Top Row: Label & Previous Icon Style */}
+                <div className="flex items-center justify-between mb-5">
+                  <span className="text-[11px] font-mono font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+                    Token Usage
+                  </span>
+                  <Zap className="size-4 text-zinc-700 dark:text-zinc-300" />
+                </div>
+
+                {/* Main Count & Total */}
+                <div className="flex items-baseline gap-1.5 mb-4">
+                  <CountUpNumber
+                    value={balance ?? 0}
+                    delay={150}
+                    duration={1400}
+                    className="text-3xl sm:text-4xl font-black text-foreground tracking-tight"
                   />
-                ))}
+                  <span className="text-xs text-muted-foreground font-mono">
+                    / {(total_added ?? 0).toLocaleString()}
+                  </span>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="h-1.5 rounded-full bg-muted mb-3 overflow-hidden">
+                  <div
+                    className="h-full bg-primary rounded-full transition-all duration-[1400ms] ease-out"
+                    style={{ width: `${creditsRevealed ? usedPct : 0}%` }}
+                  />
+                </div>
+
+                <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+                  {hasCreditData
+                    ? `${usedPct}% balance available`
+                    : "No credit usage recorded"}
+                </p>
+              </div>
+
+              {/* Footer Indicator */}
+              <div className="mt-5 pt-4 border-t border-border/60 flex items-center justify-between text-[11px] font-mono font-bold text-muted-foreground">
+                <span>CREDIT METRIC</span>
+                <span className="text-foreground">{(balance ?? 0).toLocaleString()} Remaining</span>
               </div>
             </div>
           )}
 
-          {/* CVs Analyzed */}
+          {/* Card 2: Active Jobs */}
           {loadingInsights ? (
             <StatCardSkeleton />
           ) : (
-            <div className="relative rounded-2xl bg-white dark:bg-[#0a0a0c] border border-zinc-200/90 dark:border-zinc-800/80 p-6 transition-all duration-300 hover:border-zinc-400 dark:hover:border-zinc-600 hover:-translate-y-1 shadow-xs hover:shadow-lg dark:hover:shadow-zinc-950/40">
-              <div className="flex items-center justify-between mb-5">
-                <span className="text-[11px] font-mono font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
-                  CVs Evaluated
-                </span>
-                <FileText className="size-4 text-zinc-700 dark:text-zinc-300" />
+            <div className="relative overflow-hidden rounded-3xl border border-border/80 bg-card/70 backdrop-blur-xl p-6 sm:p-7 transition-all duration-500 flex flex-col justify-between hover:border-primary/40 hover:bg-card hover:scale-[1.01] shadow-xl shadow-black/5 dark:shadow-black/20">
+              {/* Top Laser Accent Line */}
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent animate-pulse" />
+
+              <div>
+                {/* Top Row: Label & Previous Icon Style */}
+                <div className="flex items-center justify-between mb-5">
+                  <span className="text-[11px] font-mono font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+                    Active Jobs
+                  </span>
+                  <Briefcase className="size-4 text-zinc-700 dark:text-zinc-300" />
+                </div>
+
+                {/* Main Count */}
+                <div className="flex items-baseline gap-2 mb-4">
+                  <CountUpNumber
+                    value={jobsCount}
+                    delay={400}
+                    duration={1500}
+                    className="text-3xl sm:text-4xl font-black text-foreground tracking-tight"
+                  />
+                </div>
+
+                {/* Sparkline Visual */}
+                <div className="flex items-end gap-1.5 h-8">
+                  {sparkline.map((h, i) => (
+                    <div
+                      key={i}
+                      className="flex-1 rounded-xs bg-primary/20 hover:bg-primary transition-all duration-500"
+                      style={{
+                        height: insightsRevealed ? `${Math.max(h, 12)}%` : "0%",
+                        transitionDelay: `${400 + i * 60}ms`,
+                      }}
+                    />
+                  ))}
+                </div>
               </div>
-              <div className="mb-4">
-                <CountUpNumber
-                  value={cvsAnalyzed}
-                  delay={650}
-                  duration={1600}
-                  className="text-3xl sm:text-4xl font-black text-zinc-900 dark:text-white"
-                />
+
+              {/* Footer Indicator */}
+              <div className="mt-5 pt-4 border-t border-border/60 flex items-center justify-between text-[11px] font-mono font-bold text-muted-foreground">
+                <span>PIPELINE HEALTH</span>
+                <span className="text-foreground">{jobsCount} Active Positions</span>
               </div>
-              <div className="flex items-center gap-2 pt-2">
-                <span className="size-2 rounded-full bg-emerald-500 animate-ping" />
-                <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                  Real-time pipeline active
-                </span>
+            </div>
+          )}
+
+          {/* Card 3: CVs Evaluated */}
+          {loadingInsights ? (
+            <StatCardSkeleton />
+          ) : (
+            <div className="relative overflow-hidden rounded-3xl border border-border/80 bg-card/70 backdrop-blur-xl p-6 sm:p-7 transition-all duration-500 flex flex-col justify-between hover:border-primary/40 hover:bg-card hover:scale-[1.01] shadow-xl shadow-black/5 dark:shadow-black/20">
+              {/* Top Laser Accent Line */}
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary to-transparent animate-pulse" />
+
+              <div>
+                {/* Top Row: Label & Previous Icon Style */}
+                <div className="flex items-center justify-between mb-5">
+                  <span className="text-[11px] font-mono font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+                    CVs Evaluated
+                  </span>
+                  <FileText className="size-4 text-zinc-700 dark:text-zinc-300" />
+                </div>
+
+                {/* Main Count */}
+                <div className="mb-4">
+                  <CountUpNumber
+                    value={cvsAnalyzed}
+                    delay={650}
+                    duration={1600}
+                    className="text-3xl sm:text-4xl font-black text-foreground tracking-tight"
+                  />
+                </div>
+
+                {/* Indicator Subtext */}
+                <div className="flex items-center gap-2 pt-2">
+                  <span className="size-2 rounded-full bg-emerald-500 animate-ping" />
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+                    Real-time pipeline active
+                  </span>
+                </div>
+              </div>
+
+              {/* Footer Indicator */}
+              <div className="mt-5 pt-4 border-t border-border/60 flex items-center justify-between text-[11px] font-mono font-bold text-muted-foreground">
+                <span>AI ENGINE</span>
+                <span className="text-foreground">Under 10s Analysis</span>
               </div>
             </div>
           )}

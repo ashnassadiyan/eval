@@ -321,9 +321,27 @@ export function CandidateTable({
               <ChevronLeft className="w-4 h-4" /> PREV
             </button>
 
-            <span className="px-3 py-1 text-xs font-mono font-bold text-zinc-700 dark:text-zinc-300">
-              {safePage} / {totalPages}
-            </span>
+            {Array.from({ length: Math.min(3, totalPages) }, (_, i) => {
+              const maxVal = Math.min(3, totalPages);
+              const startVal = Math.min(
+                Math.max(1, safePage - 1),
+                Math.max(1, totalPages - maxVal + 1)
+              );
+              const pNum = startVal + i;
+              return (
+                <button
+                  key={pNum}
+                  onClick={() => setPage(pNum)}
+                  className={`w-8 h-8 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer ${
+                    pNum === safePage
+                      ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-xs"
+                      : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                  }`}
+                >
+                  {pNum}
+                </button>
+              );
+            })}
 
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}

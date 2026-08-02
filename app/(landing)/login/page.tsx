@@ -180,9 +180,29 @@ function LoginForm() {
 
             {/* Error Alert Box */}
             {error && (
-              <div className="mt-6 flex items-start gap-3 rounded-2xl border border-foreground/30 bg-muted p-4 text-xs font-semibold text-foreground">
-                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                <p className="leading-relaxed">{error}</p>
+              <div className="mt-6 space-y-3 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-xs font-semibold text-red-600 dark:text-red-400">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <p className="leading-relaxed">{error}</p>
+                </div>
+                {(error.toLowerCase().includes("inactive") ||
+                  error.toLowerCase().includes("deactivated") ||
+                  error.toLowerCase().includes("contact support")) && (
+                  <div className="pt-1">
+                    <Link
+                      href={
+                        email
+                          ? `/contact-support?reason=inactive&email=${encodeURIComponent(
+                              email
+                            )}`
+                          : "/contact-support?reason=inactive"
+                      }
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs uppercase tracking-wider transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
+                    >
+                      Contact Support to Reactivate →
+                    </Link>
+                  </div>
+                )}
               </div>
             )}
 

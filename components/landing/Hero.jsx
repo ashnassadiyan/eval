@@ -1,5 +1,6 @@
 import { CheckCircle2, Sparkles, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const capabilities = [
   "Resume Match Score",
@@ -13,20 +14,15 @@ export function Hero() {
   return (
     <section
       id="top"
-      className="relative snap-always snap-start min-h-[calc(100vh-4rem)] md:h-[calc(100vh-4rem)] shrink-0 overflow-hidden border-b border-border"
+      className="relative snap-always snap-start shrink-0 overflow-hidden border-b border-border"
     >
       {/* BACKGROUND LAYERS */}
-
-      {/* Base gradient */}
       <div className="absolute inset-0 -z-30 bg-gradient-to-br from-background via-background to-primary/5" />
 
       {/* Moving glow blobs */}
-      {/* Increased opacity (20% -> 40%) so the black-tinted glow actually
-          reads against the light background; on a white page a 140px-blur
-          black blob at 20% opacity dilutes to invisible. */}
-      <div className="absolute -left-40 -top-40 h-[500px] w-[500px] rounded-full bg-primary/40 blur-[140px] animate-pulse -z-20" />
+      <div className="absolute -left-40 -top-40 h-[500px] w-[500px] rounded-full bg-primary/30 blur-[140px] animate-pulse -z-20" />
       <div
-        className="absolute -right-40 bottom-[-120px] h-[500px] w-[500px] rounded-full bg-primary/25 blur-[140px] animate-pulse -z-20"
+        className="absolute -right-40 bottom-[-120px] h-[500px] w-[500px] rounded-full bg-primary/20 blur-[140px] animate-pulse -z-20"
         style={{ animationDelay: "1.5s" }}
       />
 
@@ -43,16 +39,12 @@ export function Hero() {
       />
 
       {/* Light sweep animation */}
-      {/* NOTE: this relies on a `shine` keyframe + `float` keyframe (used
-          further below) that aren't defined in globals.css. Add the
-          @keyframes block at the bottom of this file's comment to
-          globals.css, or these two will silently no-op. */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <div className="absolute -left-[30%] top-0 h-full w-[40%] rotate-12 bg-gradient-to-r from-transparent via-foreground/10 to-transparent animate-[shine_8s_linear_infinite]" />
       </div>
 
       {/* MAIN CONTENT */}
-      <div className="relative mx-auto w-full min-h-[calc(100vh-4rem)] grid max-w-[1280px] items-center gap-8 md:gap-12 px-4 py-10 md:py-10 md:grid-cols-2 md:px-12">
+      <div className="relative mx-auto w-full max-w-[1280px] grid items-center gap-8 md:gap-12 px-4 py-8 sm:py-12 md:py-12 md:min-h-[calc(100vh-4rem)] md:grid-cols-2 md:px-12">
         {/* LEFT */}
         <div className="flex flex-col justify-center">
           <div className="inline-flex w-fit items-center gap-2 rounded-full border border-border bg-card/40 px-3 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur-md">
@@ -60,7 +52,7 @@ export function Hero() {
             AI Resume Intelligence Platform
           </div>
 
-          <h1 className="mt-6 text-3xl font-bold leading-[1.08] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
+          <h1 className="mt-4 sm:mt-6 text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] sm:leading-[1.08] tracking-tight">
             <span className="block bg-gradient-to-b from-foreground to-foreground/60 bg-clip-text text-transparent">
               AI-Powered
             </span>
@@ -72,37 +64,42 @@ export function Hero() {
             </span>
           </h1>
 
-          <p className="mt-4 md:mt-6 max-w-xl text-base md:text-lg leading-relaxed text-muted-foreground">
+          <p className="mt-3 sm:mt-6 max-w-xl text-sm sm:text-base md:text-lg leading-relaxed text-muted-foreground">
             Help job seekers stand out and recruiters find the best talent —
             faster, smarter, and more accurately.
           </p>
 
-          <div className="mt-8">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+          <div className="mt-6 sm:mt-8">
+            <p className="mb-2.5 text-[11px] sm:text-xs font-semibold uppercase tracking-widest text-muted-foreground">
               Core Capabilities
             </p>
 
             <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {capabilities.map((item) => (
-                <li key={item} className="flex items-center gap-2 text-sm">
-                  <CheckCircle2 className="h-4 w-4 text-primary" />
+                <li key={item} className="flex items-center gap-2 text-xs sm:text-sm">
+                  <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
                   {item}
                 </li>
               ))}
             </ul>
           </div>
 
-          <div className="mt-10 flex flex-wrap gap-3">
+          <div className="mt-6 sm:mt-10 flex flex-wrap gap-3">
             <Button
               size="lg"
-              className="group bg-gradient-to-r from-primary to-primary/80 text-white shadow-lg hover:opacity-90"
+              className="group bg-gradient-to-r from-primary to-primary/80 text-white shadow-lg hover:opacity-90 cursor-pointer"
+              asChild
             >
-              Get Started Free
-              <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              <Link href="/signup">
+                Get Started Free
+                <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
             </Button>
 
-            <Button size="lg" variant="outline">
-              Book a Demo
+            <Button size="lg" variant="outline" asChild className="cursor-pointer">
+              <Link href="/login">
+                Login to App
+              </Link>
             </Button>
           </div>
         </div>

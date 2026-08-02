@@ -22,6 +22,18 @@ class Candidate {
       file_names: fileNames,
     });
   }
+  downloadSelectedCandidates(jobId, docType = "csv") {
+    return api.post(
+      `/candidates/download/${jobId}`,
+      {
+        job_id: String(jobId),
+        doc_type: docType,
+      },
+      {
+        responseType: "blob",
+      }
+    );
+  }
 }
 
 export default new Candidate();

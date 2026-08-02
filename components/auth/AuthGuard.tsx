@@ -15,7 +15,10 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     pathname === "/" ||
     Boolean(pathname?.startsWith("/apply")) ||
     Boolean(pathname?.startsWith("/login")) ||
-    Boolean(pathname?.startsWith("/signup"));
+    Boolean(pathname?.startsWith("/signup")) ||
+    Boolean(pathname?.startsWith("/contact-support")) ||
+    Boolean(pathname?.startsWith("/privacy")) ||
+    Boolean(pathname?.startsWith("/terms"));
 
   const isAuthPage =
     Boolean(pathname?.startsWith("/login")) ||

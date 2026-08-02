@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import candidateService from "@/store/services/candidate.service";
 import dynamic from "next/dynamic";
 
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
+
 const PdfViewer = dynamic(
   () => import("./pdf-viewer").then((mod) => mod.PdfViewer),
   { ssr: false }
@@ -31,6 +33,15 @@ export function JobPostingView({ job }: any) {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-black text-zinc-900 dark:text-white transition-colors duration-200">
       <JdHeader job={job_details} jdLink={jdLink} />
+
+      <div className="px-6 sm:px-10 py-3">
+        <Breadcrumbs
+          customItems={[
+            { label: "Jobs Pipeline", href: "/my_jobs" },
+            { label: job_details?.job_title || "Job Application" },
+          ]}
+        />
+      </div>
 
       <main className="grid grid-cols-1 gap-6 px-6 pb-16 sm:px-10 lg:grid-cols-[1fr_360px]">
         <PdfViewer fileName={getFileNameFromUrl(jdLink)} fileUrl={jdLink} />

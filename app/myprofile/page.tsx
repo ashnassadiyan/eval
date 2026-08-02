@@ -225,7 +225,7 @@ export default function MyProfilePage() {
           <div className="lg:col-span-8 space-y-6">
             <div className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111114] p-6 sm:p-8 shadow-xl">
               {/* Tab Selector */}
-              <div className="flex items-center gap-2 border-b border-zinc-200 dark:border-zinc-800 pb-4 mb-6">
+              <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 border-b border-zinc-200 dark:border-zinc-800 pb-4 mb-6">
                 <button
                   type="button"
                   onClick={() => setActiveTab("general")}

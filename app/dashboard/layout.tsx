@@ -10,6 +10,7 @@ import { useSelector } from "react-redux";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { NotificationBell } from "@/components/dashboard/NotificationBell";
 import { WelcomeSplashScreen } from "@/components/auth/WelcomeSplashScreen";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { PageTransition } from "@/components/ui/PageTransition";
 
 function DashboardContent({ children }: { children: React.ReactNode }) {
@@ -175,6 +176,9 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
 
           {/* Page content */}
           <div className="flex-1 overflow-y-auto dashboard-scroll flex flex-col min-w-0 bg-slate-50 dark:bg-black transition-colors duration-200">
+            <div className="px-4 sm:px-8 pt-3 pb-1">
+              <Breadcrumbs />
+            </div>
             <PageTransition>{children}</PageTransition>
           </div>
         </div>
