@@ -403,7 +403,7 @@ export default function AdminPage() {
 
   return (
     <AdminGuard>
-      <div className="flex-1 bg-slate-50 dark:bg-black text-zinc-900 dark:text-[#e2e2e2] font-sans p-6 md:p-10 space-y-8 select-none transition-colors min-h-screen">
+      <div className="flex-1 bg-slate-50 dark:bg-black text-zinc-900 dark:text-[#e2e2e2] font-sans p-6 md:p-10 pt-2 md:pt-3 space-y-8 select-none transition-colors min-h-screen">
         {/* HEADER */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 pb-4 border-b border-zinc-200 dark:border-zinc-800/80">
           <div>

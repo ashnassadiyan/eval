@@ -30,7 +30,7 @@ export function SignUpAnimation() {
         {/* Top Reward Monochromatic Pill */}
         <div className="relative z-10 inline-flex items-center gap-2 px-4 py-1 rounded-full bg-muted border border-border text-xs font-mono font-extrabold text-foreground">
           <Gift className="w-3.5 h-3.5 text-foreground" />
-          <span>100 Free Credits Allocated</span>
+          <span>20 Free Credits Allocated</span>
         </div>
 
         {/* Central Animated Monochromatic Credit Core & Orbiting Rings */}
@@ -99,7 +99,7 @@ export function SignUpAnimation() {
         <div className="relative z-10 space-y-1">
           <h3 className="text-base font-extrabold text-foreground">Welcome Registration Bonus</h3>
           <p className="text-xs text-muted-foreground font-medium max-w-xs mx-auto">
-            Get 100 free evaluation credits instantly upon account activation.
+            Get 20 free evaluation credits instantly upon account activation.
           </p>
         </div>
       </div>

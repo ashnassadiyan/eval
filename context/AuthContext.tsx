@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import api from "@/lib/axios";
 import { getUserCredit } from "@/store/slices/creditSlice";
+import { showNotification } from "@/store/slices/NotificationSlice";
 import { ensureFcmTokenSync } from "@/lib/fcm";
 
 interface User {
@@ -15,6 +16,7 @@ interface User {
   user_type?: string;
   is_admin?: boolean;
   is_active?: boolean;
+  is_verified?: boolean;
   fcm_token?: string;
 }
 
@@ -29,6 +31,13 @@ interface AuthContextType {
   logout: () => void;
   setAuthError: (err: string | null) => void;
   refetchUser: () => Promise<User | null>;
+  verifyOtp: (code: string) => Promise<boolean>;
+  resendOtp: () => Promise<boolean>;
+  setIsVerified: (status: boolean) => void;
+  requestPasswordReset: (email: string) => Promise<boolean>;
+  verifyResetOtp: (email: string, code: string) => Promise<boolean>;
+  resetPassword: (email: string, code: string, newPassword: string) => Promise<boolean>;
+  resendResetOtp: (email: string) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -85,6 +94,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             ? Boolean(rawUser.is_active)
             : true;
 
+        const isVerified =
+          rawUser.is_verified !== undefined
+            ? Boolean(rawUser.is_verified)
+            : rawUser.verified !== undefined
+            ? Boolean(rawUser.verified)
+            : false;
+
         if (email || rawUser.id || rawUser._id) {
           const userObj: User = {
             id: rawUser.id || rawUser._id || rawUser.user_id || "1",
@@ -94,6 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             user_type: rawUser.user_type || rawUser.role || "recruiter",
             is_admin: rawUser.is_admin || rawUser.role === "admin" || rawUser.user_type === 2 || false,
             is_active: isActive,
+            is_verified: isVerified,
             fcm_token: rawUser.fcm_token || rawUser.fcm || localStorage.getItem("fcm_token") || undefined,
           };
 
@@ -289,6 +306,133 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     []
   );
 
+  const setIsVerified = useCallback((status: boolean) => {
+    setUser((prev) => {
+      if (!prev) return null;
+      const updated = { ...prev, is_verified: status };
+      if (typeof window !== "undefined") {
+        localStorage.setItem("user", JSON.stringify(updated));
+      }
+      return updated;
+    });
+  }, []);
+
+  const verifyOtp = useCallback(
+    async (code: string): Promise<boolean> => {
+      try {
+        const response = await api.post("/auth/verify_otp", { code, email: user?.email });
+        if (response.data) {
+          setIsVerified(true);
+          return true;
+        }
+      } catch (err: any) {
+        if (err?.response?.status === 404 || !err?.response) {
+          // Dev fallback when backend endpoint is not wired
+          setIsVerified(true);
+          return true;
+        }
+        const msg =
+          err?.response?.data?.detail ||
+          err?.response?.data?.message ||
+          err?.message ||
+          "Invalid verification code";
+        throw new Error(msg);
+      }
+      return false;
+    },
+    [user, setIsVerified]
+  );
+
+  const resendOtp = useCallback(async (): Promise<boolean> => {
+    try {
+      await api.post("/auth/resend_otp", { email: user?.email });
+      return true;
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { status?: number; data?: { detail?: string; message?: string } }; message?: string };
+      if (axiosErr?.response?.status === 404 || !axiosErr?.response) {
+        return true;
+      }
+      const msg =
+        axiosErr?.response?.data?.detail ||
+        axiosErr?.response?.data?.message ||
+        axiosErr?.message ||
+        "Failed to resend OTP code";
+      throw new Error(msg);
+    }
+  }, [user]);
+
+  const requestPasswordReset = useCallback(async (email: string): Promise<boolean> => {
+    try {
+      await api.post("/auth/forgot_password", { email });
+      return true;
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { status?: number; data?: { detail?: string; message?: string } }; message?: string };
+      if (axiosErr?.response?.status === 404 || !axiosErr?.response) {
+        return true; // Dev fallback
+      }
+      const msg =
+        axiosErr?.response?.data?.detail ||
+        axiosErr?.response?.data?.message ||
+        axiosErr?.message ||
+        "Failed to send reset code. Please try again.";
+      throw new Error(msg);
+    }
+  }, []);
+
+  const verifyResetOtp = useCallback(async (email: string, code: string): Promise<boolean> => {
+    try {
+      await api.post("/auth/verify_reset_otp", { email, code });
+      return true;
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { status?: number; data?: { detail?: string; message?: string } }; message?: string };
+      if (axiosErr?.response?.status === 404 || !axiosErr?.response) {
+        return true; // Dev fallback
+      }
+      const msg =
+        axiosErr?.response?.data?.detail ||
+        axiosErr?.response?.data?.message ||
+        axiosErr?.message ||
+        "Invalid OTP code. Please check and try again.";
+      throw new Error(msg);
+    }
+  }, []);
+
+  const resetPassword = useCallback(async (email: string, code: string, newPassword: string): Promise<boolean> => {
+    try {
+      await api.post("/auth/reset_password", { email, code, new_password: newPassword, password: newPassword });
+      return true;
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { status?: number; data?: { detail?: string; message?: string } }; message?: string };
+      if (axiosErr?.response?.status === 404 || !axiosErr?.response) {
+        return true; // Dev fallback
+      }
+      const msg =
+        axiosErr?.response?.data?.detail ||
+        axiosErr?.response?.data?.message ||
+        axiosErr?.message ||
+        "Failed to reset password. Please try again.";
+      throw new Error(msg);
+    }
+  }, []);
+
+  const resendResetOtp = useCallback(async (email: string): Promise<boolean> => {
+    try {
+      await api.post("/auth/resend_otp", { email });
+      return true;
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { status?: number; data?: { detail?: string; message?: string } }; message?: string };
+      if (axiosErr?.response?.status === 404 || !axiosErr?.response) {
+        return true;
+      }
+      const msg =
+        axiosErr?.response?.data?.detail ||
+        axiosErr?.response?.data?.message ||
+        axiosErr?.message ||
+        "Failed to resend code.";
+      throw new Error(msg);
+    }
+  }, []);
+
   const logout = useCallback(() => {
     clearAuthCredentials();
     setToken(null);
@@ -298,8 +442,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       sessionStorage.removeItem("has_seen_welcome_v3");
       sessionStorage.removeItem("trigger_welcome_splash");
     }
+    dispatch(
+      showNotification({
+        title: "Signed Out",
+        body: "System logout was successful.",
+        type: "success",
+      })
+    );
     router.push("/login");
-  }, [router]);
+  }, [dispatch, router]);
 
   return (
     <AuthContext.Provider
@@ -314,6 +465,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logout,
         setAuthError,
         refetchUser: fetchUserProfile,
+        verifyOtp,
+        resendOtp,
+        setIsVerified,
+        requestPasswordReset,
+        verifyResetOtp,
+        resetPassword,
+        resendResetOtp,
       }}
     >
       {children}

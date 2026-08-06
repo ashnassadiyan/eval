@@ -11,31 +11,61 @@ import {
   Circle,
   Maximize2,
   Minimize2,
+  ArrowLeft,
+  Plus,
+  Download,
+  UserPlus,
+  ShieldCheck,
+  Check,
+  Zap,
 } from "lucide-react";
 import candidateService from "@/store/services/candidate.service";
 import jobService from "@/store/services/job.service";
 import { useDispatch, useSelector } from "react-redux";
 import { getUserCredit } from "@/store/slices/creditSlice";
+import { showNotification } from "@/store/slices/NotificationSlice";
 import PdfReportDocument from "@/components/evaluate/ReportTemplate";
 import { pdf, BlobProvider } from "@react-pdf/renderer";
 
-function StatBar({ label, value }) {
+/* Gauge Circle Component matching /evaluate */
+function CircularProgress({ value, label }) {
+  const radius = 32;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (value / 100) * circumference;
+
   return (
-    <div className="border border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-black/40 rounded-md p-4 flex-1 min-w-[180px]">
-      <div className="text-[11px] tracking-wide text-zinc-500 dark:text-white/50 uppercase font-semibold mb-3 leading-tight">
-        {label}
-      </div>
-      <div className="flex items-center gap-3">
-        <span className="text-3xl font-bold text-zinc-900 dark:text-white tabular-nums">
-          {value}%
-        </span>
-        <div className="flex-1 h-[3px] bg-zinc-200 dark:bg-white/15 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-black dark:bg-white rounded-full"
-            style={{ width: `${value}%` }}
+    <div className="flex flex-col items-center justify-center p-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/60 backdrop-blur-xl shadow-sm">
+      <div className="relative size-[72px]">
+        <svg viewBox="0 0 80 80" className="size-full -rotate-90">
+          <circle
+            cx="40"
+            cy="40"
+            r={radius}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="7"
+            className="text-zinc-200 dark:text-zinc-800"
           />
-        </div>
+          <circle
+            cx="40"
+            cy="40"
+            r={radius}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="7"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            strokeLinecap="round"
+            className="text-zinc-900 dark:text-white transition-all duration-1000 ease-out"
+          />
+        </svg>
+        <span className="absolute inset-0 flex items-center justify-center text-lg font-black text-zinc-900 dark:text-white font-mono">
+          {value}<span className="text-xs font-normal">%</span>
+        </span>
       </div>
+      <p className="mt-2 text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+        {label}
+      </p>
     </div>
   );
 }
@@ -46,7 +76,7 @@ export default function AddCandidates() {
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const { balance, total_added, total_used, loadingCredits } = useSelector(
+  const { balance, total_added, total_used } = useSelector(
     (state) => state.credits
   );
 
@@ -55,14 +85,53 @@ export default function AddCandidates() {
   const [error, setError] = useState("");
   const [status, setStatus] = useState("idle"); // idle | evaluating | done
   const [result, setResult] = useState(null);
-  const [jobDetail, setJobDetail] = useState({ job_title: "" });
-  const inputRef = useRef(null);
-  const processingRef = useRef(null);
-  const [jobLoading, setJobLoading] = useState(false);
-  const [loadingReport, setLoadingReport] = useState(false);
+  const [jobDetail, setJobDetail] = useState(null);
+  const [jobLoading, setJobLoading] = useState(true);
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [step, setStep] = useState(1); // 1: Upload CV, 2: Report
 
+  const inputRef = useRef(null);
   const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+
+  // Calculate Token Usage Properly
+  const totalAddedNum = Number(total_added) || 0;
+  const totalUsedNum = Number(total_used) || 0;
+  const balanceNum = Number(balance) || 0;
+
+  const maxTokens =
+    totalAddedNum > 0
+      ? totalAddedNum
+      : balanceNum + totalUsedNum > 0
+      ? balanceNum + totalUsedNum
+      : 100;
+  const usedTokens =
+    totalUsedNum > 0 ? totalUsedNum : Math.max(0, maxTokens - balanceNum);
+  const usagePercentage = Math.min(
+    100,
+    Math.max(0, Math.round((usedTokens / maxTokens) * 100))
+  );
+
+  // Fetch Credits & Job Details
+  useEffect(() => {
+    dispatch(getUserCredit());
+  }, [dispatch]);
+
+  useEffect(() => {
+    const getJobDetails = async () => {
+      if (!jobId) return;
+      setJobLoading(true);
+      try {
+        const response = await jobService.getJobDetails(jobId);
+        const details = response?.data?.job_details || response?.data;
+        setJobDetail(details);
+      } catch (err) {
+        console.error("Failed to fetch job details:", err);
+      } finally {
+        setJobLoading(false);
+      }
+    };
+    getJobDetails();
+  }, [jobId]);
 
   const validateAndSetFile = useCallback((f) => {
     if (!f) return;
@@ -81,8 +150,6 @@ export default function AddCandidates() {
     }
     setError("");
     setFile(f);
-    setResult(null);
-    setStatus("idle");
   }, []);
 
   const handleDrop = (e) => {
@@ -111,12 +178,20 @@ export default function AddCandidates() {
     try {
       const formData = new FormData();
       formData.append("cv", file);
-      formData.append("is_allowed", true);
+      formData.append("is_allowed", "true");
       const response = await candidateService.createCandidate(formData, jobId);
       const data = response.data.result;
       setResult(data);
       setStatus("done");
+      setStep(2);
       dispatch(getUserCredit());
+      dispatch(
+        showNotification({
+          title: "Evaluation Completed",
+          body: `Candidate match report for ${file?.name || "CV"} generated successfully.`,
+          type: "success",
+        })
+      );
     } catch (err) {
       const message =
         err?.response?.data?.message ||
@@ -132,257 +207,329 @@ export default function AddCandidates() {
     setFile(null);
     setResult(null);
     setStatus("idle");
+    setStep(1);
     setError("");
     if (inputRef.current) inputRef.current.value = "";
   };
 
-  useEffect(() => {
-    const fetchLatestReport = async () => {
-      if (!jobId) return;
-      setLoadingReport(true);
-      try {
-        const response = await candidateService.getCandidates(
-          jobId,
-          1,
-          1,
-          "",
-          "",
-          "",
-          ""
-        );
-        const resData = response?.data;
-        if (resData) {
-          const rawCandidates =
-            resData.candidates ||
-            resData.results ||
-            resData.data ||
-            (Array.isArray(resData) ? resData : []);
-
-          if (rawCandidates && rawCandidates.length > 0) {
-            setResult(rawCandidates[0]);
-          }
-        }
-      } catch (err) {
-        console.error("Failed to fetch candidate report:", err);
-      } finally {
-        setLoadingReport(false);
-      }
-    };
-
-    fetchLatestReport();
-  }, [jobId]);
-
-  useEffect(() => {
-    const getJobDetails = async () => {
-      setJobLoading(true);
-      try {
-        const response = await jobService.getJobDetails(jobId);
-        const details = response.data.job_details;
-        setJobDetail(details);
-        setJobLoading(false);
-      } catch (err) {
-      } finally {
-        setJobLoading(false);
-      }
-    };
-    getJobDetails();
-  }, [jobId]);
-
-  const handleDownload = async (evaluationResult) => {
-    if (!evaluationResult) return;
-    try {
-      const blob = await pdf(
-        <PdfReportDocument
-          evaluationResult={evaluationResult}
-          candidateName={evaluationResult.cv_link?.name?.replace(
-            /\.[^/.]+$/,
-            ""
-          )}
-        />
-      ).toBlob();
-
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "Evaluation_Report.pdf";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Error generating PDF", error);
-    }
-  };
-
-  const navigate = () => {
-    router.push("more_candidates");
+  const navigateToCandidates = () => {
+    router.push(`/my_jobs/${jobId}/candidates`);
   };
 
   return (
-    <div className="w-full min-h-screen bg-slate-50 dark:bg-[#0a0a0a] text-zinc-900 dark:text-white p-6 md:p-10 transition-colors font-sans">
-      <div className="max-w-[1500px] mx-auto">
-        {/* Header */}
-        {jobLoading ? (
-          <div className="mb-3">
-            <div className="h-12 md:h-20 w-3/4 rounded-lg bg-zinc-200 dark:bg-white/10 animate-pulse" />
+    <div className="min-h-screen bg-slate-50 dark:bg-[#09090b] text-zinc-900 dark:text-white px-4 sm:px-8 pt-2 pb-12 transition-colors">
+      <div className="mx-auto w-full max-w-6xl space-y-6">
+        {/* TOP BAR ACTIONS */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-zinc-200 dark:border-zinc-800">
+          <button
+            type="button"
+            onClick={navigateToCandidates}
+            className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors px-3 py-2 rounded-xl border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs cursor-pointer select-none"
+          >
+            <ArrowLeft className="w-4 h-4" /> Back to Candidates List
+          </button>
+
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+            <button
+              type="button"
+              onClick={() => router.push(`/my_jobs/${jobId}/candidates/more_candidates`)}
+              className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 px-3.5 py-2 rounded-xl transition-all cursor-pointer select-none"
+            >
+              <UserPlus className="w-3.5 h-3.5" /> Upload Multiple
+            </button>
+
+            {step === 2 && (
+              <button
+                type="button"
+                onClick={clearFile}
+                className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-white bg-zinc-900 dark:bg-white dark:text-zinc-950 px-4 py-2 rounded-xl hover:bg-zinc-800 dark:hover:bg-zinc-100 shadow-md transition-all cursor-pointer select-none"
+              >
+                <Plus className="w-4 h-4" /> Evaluate Another CV
+              </button>
+            )}
           </div>
-        ) : (
-          <h1 className="text-4xl md:text-6xl font-black tracking-tight mb-3 text-zinc-900 dark:text-white">
-            {jobDetail?.job_title}
-          </h1>
-        )}
+        </div>
 
-        <p className="text-zinc-600 dark:text-white/50 max-w-2xl mb-8 leading-relaxed">
-          Upload a candidate's CV to perform an automated cross-analysis against
-          technical benchmarks and architectural proficiency requirements.
-        </p>
+        {/* 2-STEP WORKFLOW INDICATOR */}
+        <div className="w-full max-w-xl mx-auto py-2">
+          <div className="flex items-center justify-between relative">
+            <div className="absolute top-5 left-12 right-12 h-0.5 bg-zinc-200 dark:bg-zinc-800 -z-0" />
+            <div
+              className="absolute top-5 left-12 h-0.5 bg-zinc-900 dark:bg-white transition-all duration-500 -z-0"
+              style={{ width: step === 1 ? "0%" : "100%" }}
+            />
 
-        <div className="grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-6">
-          {/* LEFT COLUMN */}
-          <div className="flex flex-col gap-6">
-            {/* Upload card */}
-            <div className="border border-zinc-200 dark:border-white/10 rounded-lg p-6 bg-white dark:bg-[#0d0d0d] shadow-xs">
+            {/* Step 1 */}
+            <button
+              type="button"
+              onClick={() => setStep(1)}
+              className="relative z-10 flex flex-col items-center gap-1.5 group cursor-pointer"
+            >
               <div
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  setDragActive(true);
-                }}
-                onDragLeave={() => setDragActive(false)}
-                onDrop={handleDrop}
-                className={`border-2 border-dashed rounded-md flex flex-col items-center justify-center text-center px-6 py-14 transition-colors ${
-                  dragActive
-                    ? "border-black dark:border-white/60 bg-zinc-100 dark:bg-white/5"
-                    : "border-zinc-300 dark:border-white/25 bg-zinc-50 dark:bg-transparent"
+                className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs font-mono transition-all duration-300 ${
+                  step === 1
+                    ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 ring-4 ring-zinc-500/20 scale-110 shadow-md"
+                    : "bg-emerald-500 text-white shadow-md"
                 }`}
               >
-                {!file ? (
-                  <>
-                    <UploadCloud
-                      className="w-10 h-10 text-zinc-500 dark:text-white/70 mb-4"
-                      strokeWidth={1.5}
-                    />
-                    <h2 className="text-xl font-bold mb-2 text-zinc-900 dark:text-white">Drop CV File</h2>
-                    <p className="text-zinc-500 dark:text-white/45 text-sm mb-6 max-w-[260px] leading-relaxed">
-                      Drag and drop the candidate's PDF file here. Max file
-                      size: 10MB.
-                    </p>
-                    <button
-                      onClick={() => inputRef.current?.click()}
-                      className="border border-zinc-300 dark:border-white/70 text-zinc-800 dark:text-white text-xs font-bold tracking-wider uppercase px-5 py-2.5 rounded-lg hover:bg-zinc-900 hover:text-white dark:hover:bg-white dark:hover:text-zinc-950 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] cursor-pointer select-none"
-                    >
-                      Select File
-                    </button>
-                    <input
-                      ref={inputRef}
-                      type="file"
-                      accept="application/pdf,.pdf"
-                      onChange={handleSelect}
-                      className="hidden"
-                    />
-                  </>
+                {step > 1 ? <Check className="w-4 h-4" /> : "1"}
+              </div>
+              <span
+                className={`text-[11px] font-mono font-bold uppercase tracking-wider ${
+                  step === 1 ? "text-zinc-900 dark:text-white" : "text-zinc-500"
+                }`}
+              >
+                1. Upload CV
+              </span>
+            </button>
+
+            {/* Step 2 */}
+            <div className="relative z-10 flex flex-col items-center gap-1.5">
+              <div
+                className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs font-mono transition-all duration-300 ${
+                  step === 2
+                    ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 ring-4 ring-zinc-500/20 scale-110 shadow-md"
+                    : "bg-zinc-100 dark:bg-zinc-900 text-zinc-400 border border-zinc-200 dark:border-zinc-800"
+                }`}
+              >
+                2
+              </div>
+              <span
+                className={`text-[11px] font-mono font-bold uppercase tracking-wider ${
+                  step === 2 ? "text-zinc-900 dark:text-white" : "text-zinc-500"
+                }`}
+              >
+                2. AI Report
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* STEP 1: CANDIDATE CV UPLOAD & BENCHMARK */}
+        {step === 1 && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* LEFT COLUMN: Upload Card & Token Usage Bar */}
+            <div className="lg:col-span-5 space-y-6">
+              {/* Target Job Benchmark Banner Card */}
+              <div className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111114] p-6 shadow-xl space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-zinc-500 flex items-center gap-1.5">
+                    <ShieldCheck className="w-3.5 h-3.5 text-primary" /> Target Position
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                    Active Benchmark
+                  </span>
+                </div>
+                {jobLoading ? (
+                  <div className="h-8 w-3/4 rounded-lg bg-zinc-200 dark:bg-zinc-800 animate-pulse" />
                 ) : (
-                  <div className="w-full flex flex-col items-center">
-                    <FileText
-                      className="w-10 h-10 text-zinc-500 dark:text-white/70 mb-4"
-                      strokeWidth={1.5}
-                    />
-                    <p className="font-semibold mb-1 break-all px-2 text-zinc-900 dark:text-white">
-                      {file.name}
-                    </p>
-                    <p className="text-zinc-500 dark:text-white/40 text-xs mb-6">
-                      {(file.size / 1024 / 1024).toFixed(2)} MB
-                    </p>
-                    <button
-                      onClick={clearFile}
-                      className="flex items-center gap-1.5 text-xs uppercase tracking-wide text-zinc-600 dark:text-white/60 hover:text-red-500 dark:hover:text-white border border-zinc-300 dark:border-white/20 px-4 py-2 rounded-lg transition-all hover:scale-105 active:scale-95 cursor-pointer"
-                    >
-                      <X className="w-3.5 h-3.5" /> Remove file
-                    </button>
+                  <div>
+                    <h2 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-white tracking-tight">
+                      {jobDetail?.job_title || "Job Position"}
+                    </h2>
+                    {jobDetail?.department && (
+                      <p className="text-xs text-zinc-500 mt-1 font-mono">
+                        Department: {jobDetail.department}
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
 
-              {/* Upload Multiple Candidates CTA */}
-              <button
-                onClick={() => navigate()}
-                className="w-full mt-4 border border-emerald-600 dark:border-[#39FF14]/60 text-emerald-700 dark:text-[#39FF14] text-xs font-bold tracking-wider uppercase px-5 py-3 rounded-lg hover:bg-emerald-500/10 dark:hover:bg-[#39FF14]/10 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] cursor-pointer shadow-xs select-none"
-              >
-                Upload Multiple Candidates
-              </button>
+              {/* CV Dropzone Card */}
+              <div className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111114] p-6 shadow-xl space-y-5">
+                <div
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setDragActive(true);
+                  }}
+                  onDragLeave={() => setDragActive(false)}
+                  onDrop={handleDrop}
+                  className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all flex flex-col items-center justify-center min-h-[220px] ${
+                    dragActive
+                      ? "border-primary bg-primary/10 scale-[1.01]"
+                      : file
+                      ? "border-emerald-500/50 bg-emerald-500/5"
+                      : "border-zinc-300 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/40 hover:border-zinc-400 dark:hover:border-zinc-700"
+                  }`}
+                >
+                  {!file ? (
+                    <>
+                      <div className="p-3.5 rounded-2xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-white mb-4">
+                        <UploadCloud className="w-8 h-8" strokeWidth={1.5} />
+                      </div>
+                      <h3 className="text-base font-bold text-zinc-900 dark:text-white mb-1">
+                        Upload Candidate CV
+                      </h3>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 max-w-[240px] mb-5 leading-relaxed font-mono">
+                        Drag & drop candidate PDF resume (Max file size: 10MB)
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => inputRef.current?.click()}
+                        className="px-5 py-2.5 rounded-xl text-xs font-mono font-bold uppercase tracking-wider border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white hover:bg-zinc-900 hover:text-white dark:hover:bg-white dark:hover:text-zinc-950 transition-all cursor-pointer shadow-xs"
+                      >
+                        Browse PDF File
+                      </button>
+                      <input
+                        ref={inputRef}
+                        type="file"
+                        accept="application/pdf,.pdf"
+                        onChange={handleSelect}
+                        className="hidden"
+                      />
+                    </>
+                  ) : (
+                    <div className="w-full flex flex-col items-center">
+                      <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 mb-3">
+                        <FileText className="w-8 h-8" strokeWidth={1.5} />
+                      </div>
+                      <p className="font-bold text-sm text-zinc-900 dark:text-white break-all px-2">
+                        {file.name}
+                      </p>
+                      <p className="text-xs font-mono text-zinc-500 mt-1 mb-4">
+                        {(file.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                      <button
+                        type="button"
+                        onClick={clearFile}
+                        className="inline-flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider text-red-500 hover:text-red-600 border border-red-500/30 bg-red-500/10 px-3.5 py-1.5 rounded-lg transition-colors cursor-pointer"
+                      >
+                        <X className="w-3.5 h-3.5" /> Remove file
+                      </button>
+                    </div>
+                  )}
+                </div>
 
-              {error && (
-                <p className="text-amber-600 dark:text-amber-400 text-xs mt-3 flex items-center gap-1.5 font-medium">
-                  <AlertTriangle className="w-3.5 h-3.5 shrink-0" /> {error}
-                </p>
-              )}
+                {error && (
+                  <p className="text-red-500 text-xs font-mono flex items-center gap-1.5">
+                    <AlertTriangle className="w-3.5 h-3.5 shrink-0" /> {error}
+                  </p>
+                )}
 
-              <button
-                onClick={handleEvaluate}
-                disabled={status === "evaluating"}
-                className="w-full bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 font-extrabold tracking-wider uppercase text-sm py-4 rounded-xl mt-6 hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer select-none"
-              >
-                {status === "evaluating" ? "Evaluating..." : "Evaluate CV"}
-              </button>
-            </div>
-
-            {/* System status card */}
-            <div className="border border-zinc-200 dark:border-white/10 rounded-lg p-6 bg-white dark:bg-[#0d0d0d] text-sm shadow-xs">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-zinc-500 dark:text-white/50 uppercase text-xs tracking-wide font-semibold">
-                  System Status
-                </span>
-                <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 text-xs font-medium">
-                  <Circle className="w-2 h-2 fill-emerald-500 text-emerald-500 dark:fill-emerald-400 dark:text-emerald-400" />
-                  AI Core Online
-                </span>
+                <button
+                  type="button"
+                  onClick={handleEvaluate}
+                  disabled={!file || status === "evaluating"}
+                  className={`w-full py-3.5 px-6 rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition-all duration-300 shadow-lg select-none cursor-pointer flex items-center justify-center gap-2 ${
+                    !file || status === "evaluating"
+                      ? "bg-zinc-200 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 cursor-not-allowed"
+                      : "bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 hover:bg-zinc-800 dark:hover:bg-zinc-100 hover:-translate-y-0.5 active:translate-y-0"
+                  }`}
+                >
+                  <Sparkles className="w-4 h-4" />
+                  {status === "evaluating"
+                    ? "Running AI Evaluation..."
+                    : "Start Evaluation"}
+                </button>
               </div>
 
-              <div className="border-t border-zinc-200 dark:border-white/10 pt-4">
-                <div className="flex items-center justify-between text-xs uppercase tracking-wide text-zinc-500 dark:text-white/45 mb-2">
-                  <span>Token Usage</span>
-                  <span>
-                    {balance} / {total_added}
+              {/* SYSTEM STATUS & FIXED TOKEN USAGE BAR */}
+              <div className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111114] p-6 shadow-xl space-y-4 font-mono text-xs">
+                <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
+                  <span className="text-zinc-500 font-bold uppercase tracking-wider text-[10px]">
+                    System Engine Status
+                  </span>
+                  <span className="flex items-center gap-1.5 text-emerald-500 font-bold text-[10px]">
+                    <Circle className="w-2 h-2 fill-emerald-500 text-emerald-500 animate-pulse" />
+                    AI Core Active
                   </span>
                 </div>
-                <div className="h-1.5 bg-zinc-200 dark:bg-white/10 rounded-full overflow-hidden mb-2">
-                  <div
-                    className="h-full bg-black dark:bg-white rounded-full transition-all duration-500"
-                    style={{ width: `${(total_used / total_added) * 100}%` }}
-                  />
+
+                <div className="space-y-2">
+                  <div className="flex justify-between text-zinc-600 dark:text-zinc-400 font-semibold">
+                    <span>Token Allocation Usage</span>
+                    <span>{usagePercentage}%</span>
+                  </div>
+                  <div className="h-2 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-zinc-900 dark:bg-white rounded-full transition-all duration-500"
+                      style={{ width: `${usagePercentage}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-[10px] text-zinc-500 pt-1">
+                    <span>Available: {balanceNum} Tokens</span>
+                    <span>Used: {usedTokens} / {maxTokens}</span>
+                  </div>
                 </div>
-                <div className="flex justify-between text-xs text-zinc-500 dark:text-white/40">
-                  <span>Used: {total_added - balance}</span>
-                  <span>Available: {balance}</span>
+              </div>
+            </div>
+
+            {/* RIGHT COLUMN: Instructions & Features Overview */}
+            <div className="lg:col-span-7 rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111114] p-8 shadow-xl space-y-6 min-h-[520px] flex flex-col justify-between">
+              <div className="space-y-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[10px] font-mono font-bold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">
+                  <Zap className="w-3.5 h-3.5 text-amber-500" /> Automated Benchmarking
                 </div>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 dark:text-white tracking-tight">
+                  Cross-Match Candidate Against Position Requirements
+                </h2>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed font-mono">
+                  Our neural parser automatically indexes candidate experience, technical stack match percentages, missing prerequisites, and ATS parsing reliability against your active Job Description.
+                </p>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
+                  <CircularProgress value={85} label="Avg Match Benchmark" />
+                  <CircularProgress value={92} label="ATS Compatibility" />
+                  <CircularProgress value={78} label="Selection Probability" />
+                </div>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800/80 text-xs text-zinc-500 dark:text-zinc-400 font-mono space-y-1.5">
+                <p className="font-bold text-zinc-900 dark:text-white">
+                  💡 Evaluation Tip:
+                </p>
+                <p>
+                  Ensure candidate CV is in clean PDF format without scanned imagery to maximize ATS extraction accuracy.
+                </p>
               </div>
             </div>
           </div>
+        )}
 
-          {/* RIGHT COLUMN */}
-          <div className="border border-zinc-200 dark:border-white/10 rounded-lg bg-white dark:bg-[#0d0d0d] flex flex-col overflow-hidden min-h-[800px] lg:min-h-[900px] h-[calc(100vh-180px)] shadow-xs">
-            {loadingReport ? (
-              <div className="flex-1 flex flex-col items-center justify-center text-center px-10 py-20 text-zinc-500 dark:text-white/50">
-                <div className="w-8 h-8 border-2 border-zinc-900 dark:border-white border-t-transparent animate-spin rounded-full mb-4" />
-                <p className="text-sm font-medium">Fetching candidate evaluation report...</p>
+        {/* STEP 2: AI MATCH REPORT VIEW */}
+        {step === 2 && result && (
+          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Top Action Row */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111114] shadow-md">
+              <div>
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Evaluation Completed
+                </span>
+                <h2 className="text-lg font-bold text-zinc-900 dark:text-white mt-0.5">
+                  {file?.name || "Candidate Evaluation Report"}
+                </h2>
               </div>
-            ) : !result ? (
-              <div className="flex-1 flex flex-col items-center justify-center text-center px-10 py-20 text-zinc-400 dark:text-white/35">
-                <FileText className="w-12 h-12 mb-4" strokeWidth={1} />
-                <p className="text-sm max-w-xs leading-relaxed">
-                  {status === "evaluating"
-                    ? "Cross-analyzing candidate against technical benchmarks..."
-                    : "Upload a PDF and run the evaluation to view the evaluation report here."}
-                </p>
+
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsFullScreen(true)}
+                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono font-bold uppercase tracking-wider border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors shadow-xs cursor-pointer"
+                >
+                  <Maximize2 className="w-3.5 h-3.5" /> Full Screen
+                </button>
+
+                <button
+                  type="button"
+                  onClick={clearFile}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-bold uppercase tracking-wider bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-md cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Evaluate Another CV
+                </button>
               </div>
-            ) : (
+            </div>
+
+            {/* PDF PREVIEW FRAME */}
+            <div className="rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#111114] overflow-hidden shadow-2xl min-h-[850px] flex flex-col">
               <BlobProvider
                 document={
                   <PdfReportDocument
                     evaluationResult={result}
                     candidateName={
-                      result.name ||
-                      result.candidateName ||
-                      result.cv_link?.name?.replace(/\.[^/.]+$/, "") ||
+                      result?.name ||
+                      result?.candidateName ||
+                      file?.name?.replace(/\.[^/.]+$/, "") ||
                       "Candidate"
                     }
                   />
@@ -391,151 +538,102 @@ export default function AddCandidates() {
                 {({ url, loading, error }) => {
                   if (loading) {
                     return (
-                      <div className="flex-1 flex flex-col items-center justify-center text-center p-10 text-zinc-500 dark:text-white/50">
+                      <div className="flex-1 flex flex-col items-center justify-center text-center p-12 text-zinc-500 font-mono">
                         <div className="w-8 h-8 border-2 border-zinc-900 dark:border-white border-t-transparent animate-spin rounded-full mb-3" />
-                        <p className="text-sm font-medium">Generating PDF Report Preview...</p>
+                        <p className="text-sm font-bold">Generating PDF Report Preview...</p>
                       </div>
                     );
                   }
                   if (error) {
                     return (
-                      <div className="flex-1 flex items-center justify-center p-10 text-red-500 text-sm">
+                      <div className="flex-1 flex items-center justify-center p-10 text-red-500 font-mono text-sm">
                         Failed to render PDF report preview.
                       </div>
                     );
                   }
                   return (
-                    <>
-                      <div className="w-full h-full flex flex-col flex-1">
-                        <div className="bg-zinc-100 dark:bg-zinc-900/80 p-3.5 px-6 flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800">
-                          <span className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
-                            <Sparkles className="w-4 h-4 text-emerald-500" />
-                            Evaluation Report Preview
-                          </span>
-                          <div className="flex items-center gap-3">
-                            <button
-                              type="button"
-                              onClick={() => setIsFullScreen(true)}
-                              className="flex items-center gap-1.5 border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-xs font-bold uppercase tracking-wider px-3.5 py-2 rounded-md text-zinc-800 dark:text-white hover:bg-zinc-900 hover:text-white dark:hover:bg-white dark:hover:text-black transition-all cursor-pointer shadow-xs"
-                              title="Full Screen View"
-                            >
-                              <Maximize2 className="w-3.5 h-3.5" />
-                              <span>Full Screen</span>
-                            </button>
-                            <a
-                              href={url}
-                              download={`${
-                                result.name ||
-                                result.candidateName ||
-                                result.cv_link?.name?.replace(/\.[^/.]+$/, "") ||
-                                "Evaluation_Report"
-                              }.pdf`}
-                              className="border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-md text-zinc-800 dark:text-white hover:bg-zinc-900 hover:text-white dark:hover:bg-white dark:hover:text-black transition-all cursor-pointer shadow-xs"
-                            >
-                              Export PDF
-                            </a>
-                          </div>
-                        </div>
-                        <iframe
-                          src={url}
-                          className="w-full flex-1 border-0 min-h-[750px]"
-                          title="Evaluation Report PDF Preview"
-                        />
+                    <div className="w-full flex-1 flex flex-col">
+                      <div className="p-3 px-6 bg-zinc-100 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
+                        <span className="text-xs font-mono font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-emerald-500" />
+                          Interactive PDF Candidate Report
+                        </span>
+                        <a
+                          href={url}
+                          download={`${
+                            file?.name?.replace(/\.[^/.]+$/, "") || "Evaluation_Report"
+                          }.pdf`}
+                          className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider px-4 py-2 rounded-xl bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 hover:bg-zinc-800 dark:hover:bg-zinc-100 transition-all shadow-xs cursor-pointer"
+                        >
+                          <Download className="w-3.5 h-3.5" /> Download PDF Report
+                        </a>
                       </div>
-
-                      {/* FULL SCREEN MODAL OVERLAY */}
-                      {isFullScreen && (
-                        <div className="fixed inset-0 z-[100] bg-zinc-950/95 backdrop-blur-md p-3 md:p-6 flex flex-col w-screen h-screen">
-                          <div className="bg-zinc-900 border border-zinc-800 p-4 px-6 rounded-t-xl flex items-center justify-between shadow-2xl">
-                            <span className="text-sm font-mono font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                              <Sparkles className="w-4 h-4 text-emerald-400" />
-                              Candidate Evaluation Report — Full Screen
-                            </span>
-                            <div className="flex items-center gap-3">
-                              <a
-                                href={url}
-                                download={`${
-                                  result.name ||
-                                  result.candidateName ||
-                                  result.cv_link?.name?.replace(/\.[^/.]+$/, "") ||
-                                  "Evaluation_Report"
-                                }.pdf`}
-                                className="border border-zinc-700 bg-zinc-800 text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-md text-white hover:bg-white hover:text-black transition-all cursor-pointer"
-                              >
-                                Export PDF
-                              </a>
-                              <button
-                                type="button"
-                                onClick={() => setIsFullScreen(false)}
-                                className="flex items-center gap-1.5 border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-xs font-bold uppercase tracking-wider px-3.5 py-2 rounded-md text-white transition-colors cursor-pointer"
-                                title="Exit Full Screen"
-                              >
-                                <Minimize2 className="w-4 h-4" />
-                                <span>Exit Full Screen</span>
-                              </button>
-                            </div>
-                          </div>
-                          <iframe
-                            src={url}
-                            className="w-full flex-1 border-0 rounded-b-xl shadow-2xl"
-                            title="Full Screen Evaluation Report PDF"
-                          />
-                        </div>
-                      )}
-                    </>
+                      <iframe
+                        src={url}
+                        className="w-full flex-1 border-0 min-h-[800px]"
+                        title="Evaluation Report PDF Preview"
+                      />
+                    </div>
                   );
                 }}
               </BlobProvider>
-            )}
+            </div>
+          </div>
+        )}
 
-            {status === "evaluating" && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-black/80 backdrop-blur-sm p-4">
-                <section
-                  ref={processingRef}
-                  className="p-8 py-16 space-y-8 flex flex-col items-center max-w-lg w-full bg-white dark:bg-[#111] border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-2xl"
-                >
-                  <div className="relative w-full max-w-[320px] h-[300px] border border-zinc-300 dark:border-[#444748] bg-zinc-50 dark:bg-[#111] rounded-lg shadow-2xl overflow-hidden flex-shrink-0 mx-auto">
-                    <div className="absolute left-0 right-0 top-0 h-[3px] bg-black dark:bg-white animate-scan z-20" />
-                    <div className="h-full p-6 flex flex-col">
-                      <div className="flex items-start justify-between">
-                        <div className="space-y-3">
-                          <div className="h-3 w-32 bg-black dark:bg-white rounded-full" />
-                          <div className="h-2 w-24 bg-zinc-300 dark:bg-[#444748] rounded-full" />
-                          <div className="h-2 w-28 bg-zinc-300 dark:bg-[#444748] rounded-full" />
-                        </div>
-                      </div>
-
-                      <div className="mt-6 flex-1 space-y-3 overflow-hidden opacity-50">
-                        {[...Array(8)].map((_, i) => (
-                          <div
-                            key={i}
-                            className={`h-2 rounded-full bg-zinc-300 dark:bg-[#444748] ${
-                              i % 3 === 0
-                                ? "w-full"
-                                : i % 2 === 0
-                                ? "w-10/12"
-                                : "w-8/12"
-                            }`}
-                          />
-                        ))}
-                      </div>
+        {/* FULL SCREEN MODAL OVERLAY */}
+        {isFullScreen && result && (
+          <div className="fixed inset-0 z-[100] bg-zinc-950/95 backdrop-blur-md p-3 md:p-6 flex flex-col w-screen h-screen">
+            <BlobProvider
+              document={
+                <PdfReportDocument
+                  evaluationResult={result}
+                  candidateName={
+                    result?.name ||
+                    result?.candidateName ||
+                    file?.name?.replace(/\.[^/.]+$/, "") ||
+                    "Candidate"
+                  }
+                />
+              }
+            >
+              {({ url }) => (
+                <div className="w-full h-full flex flex-col">
+                  <div className="bg-zinc-900 border border-zinc-800 p-4 px-6 rounded-t-2xl flex items-center justify-between shadow-2xl">
+                    <span className="text-sm font-mono font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-emerald-400" />
+                      Candidate Evaluation Report — Full Screen
+                    </span>
+                    <div className="flex items-center gap-3">
+                      <a
+                        href={url}
+                        download={`${
+                          file?.name?.replace(/\.[^/.]+$/, "") || "Evaluation_Report"
+                        }.pdf`}
+                        className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider px-4 py-2 rounded-xl bg-white text-zinc-950 hover:bg-zinc-100 transition-all cursor-pointer"
+                      >
+                        <Download className="w-3.5 h-3.5" /> Download PDF
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => setIsFullScreen(false)}
+                        className="inline-flex items-center gap-1.5 border border-zinc-700 bg-zinc-800 hover:bg-zinc-700 text-xs font-mono font-bold uppercase tracking-wider px-3.5 py-2 rounded-xl text-white transition-colors cursor-pointer"
+                      >
+                        <Minimize2 className="w-4 h-4" />
+                        <span>Exit Full Screen</span>
+                      </button>
                     </div>
                   </div>
-
-                  <div className="text-center space-y-2 mt-4">
-                    <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">
-                      Analyzing candidate profile...
-                    </h2>
-                    <p className="text-sm text-zinc-600 dark:text-[#c4c7c8]">
-                      Our engine is matching skills, checking ATS
-                      compatibility, and generating insights.
-                    </p>
-                  </div>
-                </section>
-              </div>
-            )}
+                  <iframe
+                    src={url}
+                    className="w-full flex-1 border-0 rounded-b-2xl shadow-2xl"
+                    title="Full Screen Evaluation Report PDF"
+                  />
+                </div>
+              )}
+            </BlobProvider>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

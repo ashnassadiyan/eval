@@ -458,7 +458,7 @@ export default function OnboardingPage() {
                   )}
                   <div className="flex justify-between items-center text-xs font-medium pt-2 border-t border-zinc-200 dark:border-zinc-800">
                     <span className="text-zinc-500">Evaluation Credits:</span>
-                    <span className="font-bold text-emerald-500">100 Free Tokens</span>
+                    <span className="font-bold text-emerald-500">20 Free Tokens</span>
                   </div>
                 </div>
 

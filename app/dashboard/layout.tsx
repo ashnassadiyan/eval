@@ -10,6 +10,7 @@ import { useSelector } from "react-redux";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { NotificationBell } from "@/components/dashboard/NotificationBell";
 import { WelcomeSplashScreen } from "@/components/auth/WelcomeSplashScreen";
+import { SidebarOnboardingTour } from "@/components/dashboard/SidebarOnboardingTour";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { PageTransition } from "@/components/ui/PageTransition";
 
@@ -17,7 +18,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const searchParams = useSearchParams();
   const welcomeParam = searchParams.get("welcome");
 
-  const { balance } = useSelector((state: any) => state.credits);
+  const { balance } = useSelector((state: any) => state.credits || {});
   const { logout, user } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
@@ -74,14 +75,6 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
             </p>
           </div>
         )}
-        <Link
-          href="/dashboard/evaluate"
-          className="flex items-center justify-center gap-2 w-full bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 py-3 px-4 rounded-xl text-sm font-bold uppercase tracking-wider hover:bg-zinc-800 dark:hover:bg-zinc-100 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer select-none"
-          onClick={() => setSidebarOpen(false)}
-        >
-          <span className="material-symbols-outlined text-[18px]">add_circle</span>
-          New Evaluation
-        </Link>
         <button
           type="button"
           onClick={logout}
@@ -99,6 +92,9 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       {showWelcome && (
         <WelcomeSplashScreen durationSeconds={6} onComplete={handleWelcomeComplete} />
       )}
+
+      {/* Guided Onboarding Tour for Sidebar Items (state saved in localStorage) */}
+      <SidebarOnboardingTour />
 
       <div className="flex h-screen w-full bg-slate-50 dark:bg-black text-slate-900 dark:text-[#e2e2e2] overflow-hidden antialiased transition-colors duration-200">
         {/* Desktop Sidebar */}
@@ -176,7 +172,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
 
           {/* Page content */}
           <div className="flex-1 overflow-y-auto dashboard-scroll flex flex-col min-w-0 bg-slate-50 dark:bg-black transition-colors duration-200">
-            <div className="px-4 sm:px-8 pt-3 pb-1">
+            <div className="px-4 sm:px-8 pt-2 pb-0">
               <Breadcrumbs />
             </div>
             <PageTransition>{children}</PageTransition>

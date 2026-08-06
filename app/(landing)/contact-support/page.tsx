@@ -144,7 +144,7 @@ function ContactSupportForm() {
                   <Mail className="w-5 h-5 text-foreground shrink-0 mt-0.5" />
                   <div>
                     <p className="text-xs font-bold text-foreground">Direct Support Email</p>
-                    <p className="text-xs font-mono text-muted-foreground">support@evalcv.com</p>
+                    <p className="text-xs font-mono text-muted-foreground">info@evalcv.app</p>
                   </div>
                 </div>
 

@@ -116,25 +116,19 @@ function PageHeader({ roleName, onAddCandidate, jobLoading, jobShare }) {
         <button
           type="button"
           onClick={jobShare}
-          className="inline-flex items-center justify-center gap-2 rounded-lg px-5 py-3 text-xs font-bold tracking-widest text-black transition-all hover:scale-[1.02] hover:shadow-md active:scale-[0.98] cursor-pointer select-none w-full sm:w-auto"
-          style={{
-            backgroundColor: NEON.yellow,
-          }}
+          className="inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-xs font-extrabold uppercase tracking-wider border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-[#121215] text-zinc-900 dark:text-white shadow-xs hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer select-none w-full sm:w-auto"
         >
-          <Share size={14} strokeWidth={2.5} />
-          SHARE JOB
+          <Share className="w-4 h-4" />
+          Share Job
         </button>
 
         <button
           type="button"
           onClick={onAddCandidate}
-          className="inline-flex items-center justify-center gap-2 rounded-lg px-5 py-3 text-xs font-bold tracking-widest text-black transition-all hover:scale-[1.02] hover:shadow-md active:scale-[0.98] cursor-pointer select-none w-full sm:w-auto"
-          style={{
-            backgroundColor: NEON.green,
-          }}
+          className="inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-xs font-extrabold uppercase tracking-wider bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 shadow-md hover:bg-zinc-800 dark:hover:bg-zinc-100 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer select-none w-full sm:w-auto"
         >
-          <Plus size={14} strokeWidth={2.5} />
-          ADD NEW CANDIDATE
+          <Plus className="w-4 h-4" />
+          Add New Candidate
         </button>
       </div>
     </div>

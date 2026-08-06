@@ -48,7 +48,7 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto w-full p-4 sm:p-6 lg:p-8 space-y-6">
+    <div className="max-w-6xl mx-auto w-full p-4 sm:p-6 lg:p-8 pt-2 space-y-6">
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-zinc-200 dark:border-zinc-800">
         <div>

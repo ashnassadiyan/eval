@@ -85,7 +85,7 @@ export function JobsPipelinePage({
   }
 
   return (
-    <div className="bg-slate-50 dark:bg-[#09090b] text-zinc-900 dark:text-white px-4 sm:px-8 py-8 min-h-screen transition-colors">
+    <div className="bg-slate-50 dark:bg-[#09090b] text-zinc-900 dark:text-white px-4 sm:px-8 pt-2 pb-8 min-h-screen transition-colors">
       <div className="mx-auto w-full max-w-[1280px]">
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-8 pb-6 border-b border-zinc-200 dark:border-zinc-800">

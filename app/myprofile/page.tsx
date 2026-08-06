@@ -5,20 +5,19 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   User,
   Mail,
-  Shield,
   Zap,
-  CheckCircle2,
   Phone,
   Briefcase,
   Key,
-  Bell,
   Sparkles,
   Lock,
   LogOut,
   Save,
+  CheckCircle2,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { showNotification } from "@/store/slices/NotificationSlice";
+import api from "@/lib/axios";
 
 export default function MyProfilePage() {
   const { user, logout } = useAuth();
@@ -37,8 +36,6 @@ export default function MyProfilePage() {
   const [userRole, setUserRole] = useState(
     user?.user_type === "recruiter" ? "recruiter" : user?.user_type === "admin" ? "admin" : "candidate"
   );
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [realtimeAlerts, setRealtimeAlerts] = useState(true);
 
   // Sync state when user object loads/updates
   useEffect(() => {
@@ -57,13 +54,20 @@ export default function MyProfilePage() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const [isSaving, setIsSaving] = useState(false);
+  const [isSavingGeneral, setIsSavingGeneral] = useState(false);
+  const [isSavingSecurity, setIsSavingSecurity] = useState(false);
 
-  const handleSaveGeneral = (e: React.FormEvent) => {
+  const handleSaveGeneral = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSaving(true);
+    try {
+      setIsSavingGeneral(true);
 
-    setTimeout(() => {
+      const res = await api.post("/auth/update_profile", {
+        name,
+        phone,
+        user_type: userRole,
+      });
+
       // Update user in localStorage
       const storedUser = localStorage.getItem("user");
       if (storedUser) {
@@ -74,19 +78,51 @@ export default function MyProfilePage() {
 
       dispatch(
         showNotification({
-          title: "Profile Saved",
-          body: "Your account information and preferences have been updated.",
+          title: "Profile Updated",
+          body: res.data?.message || "Your profile information has been updated successfully.",
           type: "success",
         })
       );
-      setIsSaving(false);
-    }, 600);
+    } catch (err: any) {
+      console.error("Profile update failed:", err);
+      dispatch(
+        showNotification({
+          title: "Update Failed",
+          body: err?.response?.data?.detail || "Could not update profile information. Please try again.",
+          type: "error",
+        })
+      );
+    } finally {
+      setIsSavingGeneral(false);
+    }
   };
 
-  const handleSaveSecurity = (e: React.FormEvent) => {
+  const handleSaveSecurity = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (newPassword && newPassword !== confirmPassword) {
+    if (!currentPassword) {
+      dispatch(
+        showNotification({
+          title: "Current Password Required",
+          body: "Please enter your current password to proceed.",
+          type: "error",
+        })
+      );
+      return;
+    }
+
+    if (!newPassword || newPassword.length < 8) {
+      dispatch(
+        showNotification({
+          title: "Invalid Password Length",
+          body: "New password must be at least 8 characters long.",
+          type: "error",
+        })
+      );
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
       dispatch(
         showNotification({
           title: "Password Mismatch",
@@ -97,36 +133,53 @@ export default function MyProfilePage() {
       return;
     }
 
-    setIsSaving(true);
-    setTimeout(() => {
+    try {
+      setIsSavingSecurity(true);
+
+      const res = await api.post("/auth/change_password", {
+        current_password: currentPassword,
+        new_password: newPassword,
+      });
+
       dispatch(
         showNotification({
-          title: "Security Updated",
-          body: "Your password has been changed successfully.",
+          title: "Password Changed",
+          body: res.data?.message || "Your password has been updated successfully.",
           type: "success",
         })
       );
+
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
-      setIsSaving(false);
-    }, 600);
+    } catch (err: any) {
+      console.error("Password update failed:", err);
+      dispatch(
+        showNotification({
+          title: "Password Update Failed",
+          body: err?.response?.data?.detail || "Incorrect current password or update error.",
+          type: "error",
+        })
+      );
+    } finally {
+      setIsSavingSecurity(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#09090b] text-zinc-900 dark:text-white px-4 sm:px-8 py-8 transition-colors">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#09090b] text-zinc-900 dark:text-white px-4 sm:px-8 pt-2 pb-8 transition-colors">
       <div className="mx-auto w-full max-w-[1100px]">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8 pb-6 border-b border-zinc-200 dark:border-zinc-800">
           <div>
             <span className="inline-block text-[11px] font-mono font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400 mb-1 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-primary" /> Account & Profile Intelligence
+              <Sparkles className="w-3.5 h-3.5 text-primary" /> Account & Profile Settings
             </span>
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white">
               My Profile Settings
             </h1>
             <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-              Manage your personal credentials, role preferences, security, and AI evaluation tokens.
+              Manage your personal credentials, account persona, security passwords, and AI evaluation tokens.
             </p>
           </div>
 
@@ -236,7 +289,7 @@ export default function MyProfilePage() {
                   }`}
                 >
                   <User className="w-4 h-4" />
-                  General & Preferences
+                  General Profile
                 </button>
 
                 <button
@@ -253,7 +306,7 @@ export default function MyProfilePage() {
                 </button>
               </div>
 
-              {/* TAB 1: GENERAL & PREFERENCES */}
+              {/* TAB 1: GENERAL PROFILE */}
               {activeTab === "general" && (
                 <form onSubmit={handleSaveGeneral} className="space-y-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -315,56 +368,15 @@ export default function MyProfilePage() {
                     </div>
                   </div>
 
-                  {/* Notification Toggles */}
-                  <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800 space-y-4">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 flex items-center gap-1.5">
-                      <Bell className="w-4 h-4 text-amber-500" /> Communication & Alert Preferences
-                    </h3>
-
-                    <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800">
-                      <div>
-                        <span className="block text-xs font-bold text-zinc-900 dark:text-white">
-                          Real-Time Evaluation Alerts
-                        </span>
-                        <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
-                          Receive live popups when candidate CV screenings finish.
-                        </span>
-                      </div>
-                      <input
-                        type="checkbox"
-                        checked={realtimeAlerts}
-                        onChange={(e) => setRealtimeAlerts(e.target.checked)}
-                        className="w-4 h-4 rounded border-zinc-300 text-primary focus:ring-primary cursor-pointer"
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800">
-                      <div>
-                        <span className="block text-xs font-bold text-zinc-900 dark:text-white">
-                          Email Match Summaries
-                        </span>
-                        <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
-                          Receive weekly PDF report summaries in your inbox.
-                        </span>
-                      </div>
-                      <input
-                        type="checkbox"
-                        checked={emailNotifications}
-                        onChange={(e) => setEmailNotifications(e.target.checked)}
-                        className="w-4 h-4 rounded border-zinc-300 text-primary focus:ring-primary cursor-pointer"
-                      />
-                    </div>
-                  </div>
-
                   {/* Submit Button */}
                   <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800 flex justify-end">
                     <button
                       type="submit"
-                      disabled={isSaving}
-                      className="inline-flex items-center gap-2 bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 px-6 py-3 rounded-xl font-bold text-xs shadow-md hover:opacity-90 transition-all cursor-pointer"
+                      disabled={isSavingGeneral}
+                      className="inline-flex items-center gap-2 bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 px-6 py-3 rounded-xl font-bold text-xs shadow-md hover:opacity-90 transition-all cursor-pointer disabled:opacity-50"
                     >
                       <Save className="w-4 h-4" />
-                      {isSaving ? "Saving Preferences..." : "Save Profile Preferences"}
+                      {isSavingGeneral ? "Updating Profile..." : "Save Profile Details"}
                     </button>
                   </div>
                 </form>
@@ -380,6 +392,7 @@ export default function MyProfilePage() {
                       </label>
                       <input
                         type="password"
+                        required
                         value={currentPassword}
                         onChange={(e) => setCurrentPassword(e.target.value)}
                         placeholder="••••••••"
@@ -389,10 +402,11 @@ export default function MyProfilePage() {
 
                     <div>
                       <label className="block text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 mb-2 flex items-center gap-1.5">
-                        <Lock className="w-3.5 h-3.5 text-primary" /> New Password
+                        <Lock className="w-3.5 h-3.5 text-primary" /> New Password (Min 8 Chars)
                       </label>
                       <input
                         type="password"
+                        required
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         placeholder="••••••••"
@@ -406,6 +420,7 @@ export default function MyProfilePage() {
                       </label>
                       <input
                         type="password"
+                        required
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         placeholder="••••••••"
@@ -417,11 +432,11 @@ export default function MyProfilePage() {
                   <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800 flex justify-end">
                     <button
                       type="submit"
-                      disabled={isSaving}
-                      className="inline-flex items-center gap-2 bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 px-6 py-3 rounded-xl font-bold text-xs shadow-md hover:opacity-90 transition-all cursor-pointer"
+                      disabled={isSavingSecurity}
+                      className="inline-flex items-center gap-2 bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 px-6 py-3 rounded-xl font-bold text-xs shadow-md hover:opacity-90 transition-all cursor-pointer disabled:opacity-50"
                     >
                       <Save className="w-4 h-4" />
-                      {isSaving ? "Updating Password..." : "Update Password"}
+                      {isSavingSecurity ? "Updating Password..." : "Update Password"}
                     </button>
                   </div>
                 </form>

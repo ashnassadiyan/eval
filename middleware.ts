@@ -41,5 +41,6 @@ export const config = {
     "/onboarding",
     "/login",
     "/signup",
+    "/verify-otp",
   ],
 };

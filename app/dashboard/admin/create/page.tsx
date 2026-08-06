@@ -191,7 +191,7 @@ export default function CreateUserPage() {
                       if (errors.email)
                         setErrors((prev) => ({ ...prev, email: undefined }));
                     }}
-                    placeholder="e.g. user@obsidian.ai"
+                    placeholder="e.g. user@evalcv.ai"
                     className={`w-full bg-zinc-50 dark:bg-[#121214] border ${
                       errors.email
                         ? "border-red-500 focus:border-red-500"

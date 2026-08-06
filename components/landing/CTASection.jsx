@@ -45,7 +45,7 @@ export function CTASection() {
           className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-xs font-extrabold text-primary mb-8 backdrop-blur-xl shadow-sm"
         >
           <Sparkles className="h-4 w-4 text-primary animate-spin" style={{ animationDuration: "8s" }} />
-          <span>Start for free — Includes 100 Free AI Evaluation Credits</span>
+          <span>Start for free — Includes 20 Free AI Evaluation Credits</span>
         </motion.div>
 
         {/* Main Title */}

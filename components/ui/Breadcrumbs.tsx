@@ -73,7 +73,7 @@ export function Breadcrumbs({ customItems, className = "" }: BreadcrumbsProps) {
   return (
     <nav
       aria-label="Breadcrumb"
-      className={`flex items-center gap-1.5 text-xs font-mono select-none overflow-x-auto py-2 px-1 scrollbar-none ${className}`}
+      className={`flex items-center gap-1.5 text-xs font-mono select-none overflow-x-auto py-0.5 px-1 scrollbar-none ${className}`}
     >
       <Link
         href="/dashboard"

@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { PageLoader } from "@/components/ui/PageLoader";
+import { OtpVerificationScreen } from "@/components/auth/OtpVerificationScreen";
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -16,6 +17,9 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     Boolean(pathname?.startsWith("/apply")) ||
     Boolean(pathname?.startsWith("/login")) ||
     Boolean(pathname?.startsWith("/signup")) ||
+    Boolean(pathname?.startsWith("/forgot-password")) ||
+    Boolean(pathname?.startsWith("/reset-password")) ||
+    Boolean(pathname?.startsWith("/verify-otp")) ||
     Boolean(pathname?.startsWith("/contact-support")) ||
     Boolean(pathname?.startsWith("/privacy")) ||
     Boolean(pathname?.startsWith("/terms"));
@@ -35,9 +39,13 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // 2. If authenticated user attempts to visit /login or /signup -> redirect to dashboard
+    // 2. If authenticated user attempts to visit /login or /signup -> redirect to dashboard or verify-otp
     if (isAuthenticated && user && isAuthPage) {
-      router.push("/dashboard");
+      if (!user.is_verified) {
+        router.push("/verify-otp");
+      } else {
+        router.push("/dashboard");
+      }
     }
   }, [isAuthenticated, user, isLoading, isPublicRoute, isAuthPage, pathname, router]);
 
@@ -50,6 +58,11 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         fullScreen={true}
       />
     );
+  }
+
+  // 3. IF USER IS LOGGED IN BUT IS_VERIFIED IS FALSE OR MISSING -> RENDER OTP VERIFICATION SCREEN
+  if (isAuthenticated && user && !user.is_verified && !isPublicRoute && pathname !== "/verify-otp") {
+    return <OtpVerificationScreen redirectUrl={pathname || "/dashboard"} />;
   }
 
   return <>{children}</>;

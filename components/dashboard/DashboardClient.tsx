@@ -211,7 +211,7 @@ export default function DashboardClient() {
   const insightsRevealed = useReveal(!loadingInsights, 100);
 
   return (
-    <div className="relative min-h-screen bg-background text-foreground px-6 sm:px-10 py-8 font-sans transition-colors overflow-hidden">
+    <div className="relative min-h-screen bg-background text-foreground px-6 sm:px-10 pt-2 pb-8 font-sans transition-colors overflow-hidden">
       {/* Background Lighting & Grid Pattern from ProcessSection */}
       <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
         <div className="absolute -left-40 top-1/4 h-[500px] w-[500px] rounded-full bg-primary/10 blur-[150px] animate-pulse" />

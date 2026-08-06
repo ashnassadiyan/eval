@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Eye, EyeOff, AlertCircle, Sparkles, ShieldCheck, Mail, Lock, User, ArrowRight, Building2, Briefcase, CheckCircle2 } from "lucide-react";
+import { Eye, EyeOff, AlertCircle, Sparkles, ShieldCheck, Mail, Lock, User, UserPlus, ArrowRight, Building2, Briefcase, CheckCircle2 } from "lucide-react";
 import { useState, useEffect, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -121,17 +121,16 @@ export default function SignupPage() {
 
             {/* Header Branding */}
             <div className="text-center flex flex-col items-center">
-              <div className="relative mb-4 p-2.5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-md flex items-center justify-center">
-                <img
-                  src="/logo.png"
-                  alt="EvalCv Logo"
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-contain"
-                />
+              <div className="relative mb-4 group select-none">
+                <div className="absolute -inset-1.5 rounded-2xl bg-gradient-to-r from-primary/30 to-emerald-500/30 blur-md opacity-70 group-hover:opacity-100 transition-opacity" />
+                <div className="relative p-3.5 rounded-2xl bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 border border-zinc-200/20 dark:border-zinc-800 shadow-xl flex items-center justify-center">
+                  <UserPlus className="w-7 h-7" />
+                </div>
               </div>
 
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted border border-border text-[11px] font-mono font-extrabold text-foreground mb-3">
                 <Sparkles className="w-3.5 h-3.5 text-foreground" />
-                <span>Includes 100 Free AI Evaluation Credits</span>
+                <span>Includes 20 Free AI Evaluation Credits</span>
               </div>
 
               <h1 className="text-3xl font-extrabold tracking-tight text-foreground">

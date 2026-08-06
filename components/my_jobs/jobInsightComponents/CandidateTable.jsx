@@ -208,7 +208,7 @@ export function CandidateTable({
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-1.5 text-zinc-700 dark:text-zinc-300 font-medium">
                           <Phone className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
-                          <span>{c.phone || c.phone_number || "N/A"}</span>
+                          <span>{c.mobile || c.phone_number || "N/A"}</span>
                         </div>
                       </td>
 
@@ -253,25 +253,44 @@ export function CandidateTable({
                       <td className="px-5 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                           {/* Details Toggle Button */}
-                          <button
-                            type="button"
-                            onClick={() => setSelectedCandidate(c)}
-                            title="Inspect Recruiter Summary"
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs font-bold hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all"
-                          >
-                            <Info className="w-3.5 h-3.5 text-blue-500" />
-                            <span>Details</span>
-                          </button>
+                          <div className="relative group/tooltip">
+                            <button
+                              type="button"
+                              onClick={() => setSelectedCandidate(c)}
+                              aria-label="View Candidate Details & Summary"
+                              className="inline-flex items-center justify-center p-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-800/80 text-zinc-800 dark:text-zinc-200 hover:bg-blue-500/10 hover:border-blue-500/30 hover:text-blue-600 dark:hover:text-blue-400 transition-all duration-200 shadow-xs cursor-pointer"
+                            >
+                              <Info className="w-4 h-4 text-blue-500" />
+                            </button>
+
+                            {/* Tooltip Hover Bubble */}
+                            <div className="absolute right-0 bottom-full mb-2 hidden group-hover/tooltip:flex flex-col items-center pointer-events-none z-30 animate-in fade-in zoom-in-95 duration-150">
+                              <div className="whitespace-nowrap rounded-lg bg-zinc-950 dark:bg-white px-2.5 py-1 text-[11px] font-mono font-bold text-white dark:text-zinc-950 shadow-md border border-zinc-800 dark:border-zinc-200">
+                                View Candidate Details
+                              </div>
+                              <div className="w-2 h-2 -mt-1 rotate-45 bg-zinc-950 dark:bg-white" />
+                            </div>
+                          </div>
 
                           {/* View / Download PDF Report Button */}
-                          <button
-                            type="button"
-                            onClick={() => handleDownload(c.evaluationResult, candidateName)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 text-xs font-extrabold hover:opacity-90 transition-all shadow-xs"
-                          >
-                            <Download className="w-3.5 h-3.5" />
-                            <span>Report</span>
-                          </button>
+                          <div className="relative group/tooltip">
+                            <button
+                              type="button"
+                              onClick={() => handleDownload(c.evaluationResult, candidateName)}
+                              aria-label="Download PDF Evaluation Report"
+                              className="inline-flex items-center justify-center p-2 rounded-xl bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 hover:opacity-90 transition-all duration-200 shadow-xs cursor-pointer"
+                            >
+                              <Download className="w-4 h-4" />
+                            </button>
+
+                            {/* Tooltip Hover Bubble */}
+                            <div className="absolute right-0 bottom-full mb-2 hidden group-hover/tooltip:flex flex-col items-center pointer-events-none z-30 animate-in fade-in zoom-in-95 duration-150">
+                              <div className="whitespace-nowrap rounded-lg bg-zinc-950 dark:bg-white px-2.5 py-1 text-[11px] font-mono font-bold text-white dark:text-zinc-950 shadow-md border border-zinc-800 dark:border-zinc-200">
+                                Download PDF Report
+                              </div>
+                              <div className="w-2 h-2 -mt-1 rotate-45 bg-zinc-950 dark:bg-white" />
+                            </div>
+                          </div>
                         </div>
                       </td>
                     </tr>

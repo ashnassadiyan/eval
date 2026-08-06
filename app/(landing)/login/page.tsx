@@ -21,7 +21,6 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  const [successBanner, setSuccessBanner] = useState("");
   const [loading, setLoading] = useState(false);
 
   const { login, isAuthenticated, isLoading, authError } = useAuth();
@@ -35,24 +34,15 @@ function LoginForm() {
     }
   }, [isAuthenticated, isLoading, router, redirectParam]);
 
-  // Handle registration success banner & pre-filled email
-  useEffect(() => {
-    if (isRegisteredParam) {
-      setSuccessBanner("Account created successfully! Please sign in with your password to proceed.");
-    }
-    if (emailParam) {
-      setEmail(emailParam);
-    }
-  }, [isRegisteredParam, emailParam]);
+  const isResetSuccessParam = searchParams.get("reset") === "success";
 
-  // Display auth error if redirected from session expiration / 401
-  useEffect(() => {
-    if (authError) {
-      setError(authError);
-    } else if (redirectParam) {
-      setError("Please sign in to access that page.");
-    }
-  }, [authError, redirectParam]);
+  const successMessage = isRegisteredParam
+    ? "Account created successfully! Please sign in with your password to proceed."
+    : isResetSuccessParam
+    ? "Password successfully reset! Please sign in with your new password."
+    : "";
+
+  const displayError = error || authError || (redirectParam ? "Please sign in to access that page." : "");
 
   if (isLoading) {
     return (
@@ -149,12 +139,11 @@ function LoginForm() {
 
             {/* Header Branding */}
             <div className="text-center flex flex-col items-center">
-              <div className="relative mb-4 p-2.5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-md flex items-center justify-center">
-                <img
-                  src="/logo.png"
-                  alt="EvalCv Logo"
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-contain"
-                />
+              <div className="relative mb-4 group select-none">
+                <div className="absolute -inset-1.5 rounded-2xl bg-gradient-to-r from-primary/30 to-emerald-500/30 blur-md opacity-70 group-hover:opacity-100 transition-opacity" />
+                <div className="relative p-3.5 rounded-2xl bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 border border-zinc-200/20 dark:border-zinc-800 shadow-xl flex items-center justify-center">
+                  <ShieldCheck className="w-7 h-7" />
+                </div>
               </div>
 
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted border border-border text-[11px] font-mono font-extrabold text-foreground mb-3">
@@ -171,23 +160,23 @@ function LoginForm() {
             </div>
 
             {/* Success Banner Box */}
-            {successBanner && (
+            {successMessage && (
               <div className="mt-6 flex items-start gap-3 rounded-2xl border border-foreground/30 bg-muted p-4 text-xs font-semibold text-foreground">
                 <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
-                <p className="leading-relaxed">{successBanner}</p>
+                <p className="leading-relaxed">{successMessage}</p>
               </div>
             )}
 
             {/* Error Alert Box */}
-            {error && (
+            {displayError && (
               <div className="mt-6 space-y-3 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-xs font-semibold text-red-600 dark:text-red-400">
                 <div className="flex items-start gap-3">
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                  <p className="leading-relaxed">{error}</p>
+                  <p className="leading-relaxed">{displayError}</p>
                 </div>
-                {(error.toLowerCase().includes("inactive") ||
-                  error.toLowerCase().includes("deactivated") ||
-                  error.toLowerCase().includes("contact support")) && (
+                {(displayError.toLowerCase().includes("inactive") ||
+                  displayError.toLowerCase().includes("deactivated") ||
+                  displayError.toLowerCase().includes("contact support")) && (
                   <div className="pt-1">
                     <Link
                       href={
@@ -230,12 +219,20 @@ function LoginForm() {
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="password"
-                    className="block text-xs font-extrabold text-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5"
-                  >
-                    <Lock className="w-3.5 h-3.5 text-foreground" /> Password
-                  </label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label
+                      htmlFor="password"
+                      className="text-xs font-extrabold text-foreground uppercase tracking-wider flex items-center gap-1.5"
+                    >
+                      <Lock className="w-3.5 h-3.5 text-foreground" /> Password
+                    </label>
+                    <Link
+                      href={email ? `/forgot-password?email=${encodeURIComponent(email)}` : "/forgot-password"}
+                      className="text-xs font-bold text-foreground/80 hover:text-foreground hover:underline transition-colors cursor-pointer"
+                    >
+                      Forgot password?
+                    </Link>
+                  </div>
                   <div className="relative">
                     <input
                       id="password"
