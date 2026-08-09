@@ -29,10 +29,10 @@ export function Navbar() {
         <Link href="/" className="flex items-center gap-2.5 font-extrabold text-xl tracking-tight">
           <img
             src="/logo.png"
-            alt="EvalCv Logo"
+            alt="EvalCV.app Logo"
             className="w-8 h-8 rounded-lg object-cover border border-border/50 shadow-xs"
           />
-          <span>EVAL</span>
+          <span>EvalCV.app</span>
         </Link>
 
         <div className="flex items-center gap-2.5">

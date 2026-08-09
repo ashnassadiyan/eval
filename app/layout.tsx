@@ -29,10 +29,10 @@ const hankenGrotesk = Hanken_Grotesk({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://evalcv.com"),
+  metadataBase: new URL("https://evalcv.app"),
   title: {
-    default: "EvalCv — AI Resume Screening & Candidate Matching",
-    template: "%s | EvalCv",
+    default: "EvalCV.app — AI Resume Screening & Candidate Matching",
+    template: "%s | EvalCV.app",
   },
   description:
     "AI-powered resume screening and candidate matching platform. Know how employers see your resume, analyze skills gaps, and match top talent faster.",
@@ -44,28 +44,28 @@ export const metadata: Metadata = {
     "Skills Gap Analysis",
     "Recruiter AI Tool",
     "Job Application Scanner",
-    "EvalCv",
+    "EvalCV.app",
   ],
-  authors: [{ name: "EvalCv Team" }],
-  creator: "EvalCv",
-  publisher: "EvalCv",
+  authors: [{ name: "EvalCV.app Team" }],
+  creator: "EvalCV.app",
+  publisher: "EvalCV.app",
   icons: {
     icon: "/logo.png",
     shortcut: "/logo.png",
     apple: "/logo.png",
   },
   openGraph: {
-    title: "EvalCv — AI Resume Screening & Candidate Matching",
+    title: "EvalCV.app — AI Resume Screening & Candidate Matching",
     description:
       "Transform hiring and resume building with AI-driven resume scoring, skills gap analysis, and candidate matching.",
-    url: "https://evalcv.com",
-    siteName: "EvalCv",
+    url: "https://evalcv.app",
+    siteName: "EvalCV.app",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "EvalCv AI Resume Intelligence Platform Hero",
+        alt: "EvalCV.app AI Resume Intelligence Platform Hero",
       },
     ],
     locale: "en_US",
@@ -73,11 +73,11 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "EvalCv — AI Resume Screening & Candidate Matching",
+    title: "EvalCV.app — AI Resume Screening & Candidate Matching",
     description:
       "Transform hiring and resume building with AI-driven resume scoring, skills gap analysis, and candidate matching.",
     images: ["/og-image.png"],
-    creator: "@EvalCv",
+    creator: "@EvalCVapp",
   },
 };
 

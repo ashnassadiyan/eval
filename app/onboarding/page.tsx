@@ -62,7 +62,7 @@ export default function OnboardingPage() {
 
       dispatch(
         showNotification({
-          title: "Welcome to EvalCv!",
+          title: "Welcome to EvalCV.app!",
           body: `Onboarding completed as ${
             selectedRole === "recruiter" ? "Independent Recruiter" : "Job Seeker"
           }.`,
@@ -94,7 +94,7 @@ export default function OnboardingPage() {
             <span>Account Onboarding Setup</span>
           </div>
           <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white">
-            Welcome to EvalCv, {user?.name || "Member"}!
+            Welcome to EvalCV.app, {user?.name || "Member"}!
           </h1>
           <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-1">
             Let&apos;s customize your intelligence engine based on your goals.
@@ -145,7 +145,7 @@ export default function OnboardingPage() {
                     Choose Your Role
                   </h2>
                   <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-                    Select the option that best describes how you plan to use EvalCv.
+                    Select the option that best describes how you plan to use EvalCV.app.
                   </p>
                 </div>
 

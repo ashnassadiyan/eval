@@ -566,7 +566,7 @@ export const PdfReportDocument: React.FC<PdfReportDocumentProps> = ({
         {/* Header */}
         <View style={styles.headerRow}>
           <View>
-            <Text style={styles.brandTitle}>EVALCV</Text>
+            <Text style={styles.brandTitle}>EVALCV.app</Text>
             <Text style={styles.brandSubtitle}>RECRUITMENT AI SOLUTIONS</Text>
           </View>
           <View style={styles.headerRight}>
@@ -708,7 +708,7 @@ export const PdfReportDocument: React.FC<PdfReportDocumentProps> = ({
         {/* Page footer */}
         <View style={styles.pageFooterRow}>
           <Text style={styles.pageFooterText}>
-            EVALCV AI - CANDIDATE DETAIL REPORT
+            EVALCV.app AI - CANDIDATE DETAIL REPORT
           </Text>
           <Text style={styles.pageFooterBold}>PAGE 1 OF 1</Text>
         </View>

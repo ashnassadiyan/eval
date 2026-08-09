@@ -56,7 +56,7 @@ export function ReportSection() {
         {/* — Header — */}
         <div className="flex flex-col sm:flex-row justify-between items-start px-4 sm:px-8 py-4 sm:py-5 gap-3 shrink-0">
           <div>
-            <p className="text-[17px] font-black tracking-tight text-black">EVALCV</p>
+            <p className="text-[17px] font-black tracking-tight text-black">EVALCV.app</p>
             <p className="text-[9px] font-bold uppercase tracking-[0.22em] text-[#999] mt-1">Recruitment AI Solutions</p>
           </div>
           <div className="text-right">

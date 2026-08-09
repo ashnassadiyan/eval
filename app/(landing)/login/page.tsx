@@ -70,7 +70,7 @@ function LoginForm() {
       dispatch(
         showNotification({
           title: "Login Successful",
-          body: "Welcome to EvalCv AI Talent Platform!",
+          body: "Welcome to EvalCV.app AI Talent Platform!",
           type: "success",
         })
       );

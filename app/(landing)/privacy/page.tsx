@@ -69,7 +69,7 @@ export default function PrivacyPolicyPage() {
             </h2>
           </div>
           <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-            At <strong className="text-foreground">EVAL CV</strong>, we prioritize the confidentiality and integrity of your data. This Privacy Policy outlines how we collect, process, store, and safeguard your personal information and candidate evaluation documents.
+            At <strong className="text-foreground">EvalCV.app</strong>, we prioritize the confidentiality and integrity of your data. This Privacy Policy outlines how we collect, process, store, and safeguard your personal information and candidate evaluation documents.
           </p>
         </div>
 
@@ -81,7 +81,7 @@ export default function PrivacyPolicyPage() {
               <Database className="w-4 h-4" /> 1. Information We Collect
             </h3>
             <p>
-              When using the EvalCv Talent Intelligence Platform, we may collect the following categories of information:
+              When using the EvalCV.app Talent Intelligence Platform, we may collect the following categories of information:
             </p>
             <ul className="list-disc list-inside space-y-1.5 font-mono text-xs pl-2 text-foreground">
               <li><strong>Account Credentials:</strong> Full name, corporate email address, password hash, and user role.</li>
@@ -133,7 +133,7 @@ export default function PrivacyPolicyPage() {
               <FileText className="w-4 h-4" /> 4. Data Sharing & Third-Party Services
             </h3>
             <p>
-              EvalCv does not sell, rent, or trade your personal or candidate data to any third-party advertisers. We only share information with trusted infrastructure providers (e.g., secure cloud hosting, authentication gateways) essential to operating the platform under strict confidentiality agreements.
+              EvalCV.app does not sell, rent, or trade your personal or candidate data to any third-party advertisers. We only share information with trusted infrastructure providers (e.g., secure cloud hosting, authentication gateways) essential to operating the platform under strict confidentiality agreements.
             </p>
           </section>
 

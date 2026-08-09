@@ -70,7 +70,7 @@ export function CTASection() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="mt-6 text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto font-medium"
         >
-          Join thousands of recruiters and job seekers leveraging EvalCv to make data-backed hiring decisions with zero friction.
+          Join thousands of recruiters and job seekers leveraging EvalCV.app to make data-backed hiring decisions with zero friction.
         </motion.p>
 
         {/* CTA Buttons */}

@@ -175,7 +175,7 @@ export function PageLoader({
           <span className="relative inline-flex rounded-full h-2 w-2 bg-foreground dark:bg-white" />
         </span>
         <span className="text-[11px] font-bold tracking-wider uppercase text-foreground dark:text-white flex items-center gap-1">
-          EVAL CV <span className="opacity-40">•</span> Talent AI Engine
+          EvalCV.app <span className="opacity-40">•</span> Talent AI Engine
         </span>
       </motion.div>
 
