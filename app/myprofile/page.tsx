@@ -288,7 +288,6 @@ export default function MyProfilePage() {
                       : "text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
                   }`}
                 >
-                  <User className="w-4 h-4" />
                   General Profile
                 </button>
 
@@ -301,7 +300,6 @@ export default function MyProfilePage() {
                       : "text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white"
                   }`}
                 >
-                  <Lock className="w-4 h-4" />
                   Security & Password
                 </button>
               </div>

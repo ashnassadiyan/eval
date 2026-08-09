@@ -98,25 +98,23 @@ export function InsightSection() {
             <button
               type="button"
               onClick={() => setActiveTab("candidate")}
-              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all duration-300 cursor-pointer ${
+              className={`flex items-center justify-center px-6 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all duration-300 cursor-pointer ${
                 activeTab === "candidate"
                   ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 scale-[1.02]"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <Target className="w-4 h-4" />
               For Job Seekers
             </button>
             <button
               type="button"
               onClick={() => setActiveTab("recruiter")}
-              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all duration-300 cursor-pointer ${
+              className={`flex items-center justify-center px-6 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all duration-300 cursor-pointer ${
                 activeTab === "recruiter"
                   ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 scale-[1.02]"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <Users className="w-4 h-4" />
               For Recruiters
             </button>
           </div>

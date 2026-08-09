@@ -81,9 +81,15 @@ export function Footer() {
         </div>
 
         <div className="mt-12 border-t border-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs tracking-wider text-muted-foreground uppercase">
-            © 2024 EVAL. All rights reserved.
-          </p>
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
+            <p className="text-xs tracking-wider text-muted-foreground uppercase">
+              © 2024 EVAL. All rights reserved.
+            </p>
+            <span className="hidden sm:inline text-muted-foreground/40">•</span>
+            <p className="text-xs text-muted-foreground">
+              Powered by <span className="font-semibold text-foreground">Revalutions</span>
+            </p>
+          </div>
           <a href="mailto:info@evalcv.app" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
             info@evalcv.app
           </a>
