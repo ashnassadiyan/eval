@@ -90,7 +90,7 @@ export function InsightSection() {
           </h2>
           <p className="mt-4 text-base sm:text-lg text-muted-foreground font-medium">
             Whether you want to optimize your resume or streamline candidate evaluation,
-            EvalCV.app delivers actionable precision.
+            evalcv.app delivers actionable precision.
           </p>
 
           {/* Interactive Switcher Pill */}

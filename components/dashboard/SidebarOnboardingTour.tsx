@@ -30,7 +30,7 @@ interface TourStep {
 const TOUR_STEPS: TourStep[] = [
   {
     id: "welcome",
-    title: "Welcome to EvalCV.app Intelligence Workspace!",
+    title: "Welcome to evalcv.app Intelligence Workspace!",
     badge: "New User Onboarding",
     icon: <Sparkles className="w-6 h-6 text-amber-400 animate-pulse" />,
     navKey: "overview",

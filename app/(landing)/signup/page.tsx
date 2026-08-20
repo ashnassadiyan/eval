@@ -134,7 +134,7 @@ export default function SignupPage() {
               </div>
 
               <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
-                Join EvalCV.app
+                Join evalcv.app
               </h1>
               <p className="mt-2 text-xs sm:text-sm text-muted-foreground font-medium">
                 Create an account to start screening resumes & candidate matching.

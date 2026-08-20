@@ -31,8 +31,8 @@ const hankenGrotesk = Hanken_Grotesk({
 export const metadata: Metadata = {
   metadataBase: new URL("https://evalcv.app"),
   title: {
-    default: "EvalCV.app — AI Resume Screening & Candidate Matching",
-    template: "%s | EvalCV.app",
+    default: "evalcv.app — AI Resume Screening & Candidate Matching",
+    template: "%s | evalcv.app",
   },
   description:
     "AI-powered resume screening and candidate matching platform. Know how employers see your resume, analyze skills gaps, and match top talent faster.",
@@ -44,11 +44,11 @@ export const metadata: Metadata = {
     "Skills Gap Analysis",
     "Recruiter AI Tool",
     "Job Application Scanner",
-    "EvalCV.app",
+    "evalcv.app",
   ],
-  authors: [{ name: "EvalCV.app Team" }],
-  creator: "EvalCV.app",
-  publisher: "EvalCV.app",
+  authors: [{ name: "Evolytics Team" }],
+  creator: "Evolytics",
+  publisher: "Evolytics",
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
@@ -59,17 +59,17 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
-    title: "EvalCV.app — AI Resume Screening & Candidate Matching",
+    title: "evalcv.app — AI Resume Screening & Candidate Matching",
     description:
       "Transform hiring and resume building with AI-driven resume scoring, skills gap analysis, and candidate matching.",
     url: "https://evalcv.app",
-    siteName: "EvalCV.app",
+    siteName: "evalcv.app",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "EvalCV.app AI Resume Intelligence Platform Hero",
+        alt: "evalcv.app AI Resume Intelligence Platform Hero",
       },
     ],
     locale: "en_US",
@@ -77,11 +77,11 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "EvalCV.app — AI Resume Screening & Candidate Matching",
+    title: "evalcv.app — AI Resume Screening & Candidate Matching",
     description:
       "Transform hiring and resume building with AI-driven resume scoring, skills gap analysis, and candidate matching.",
     images: ["/og-image.png"],
-    creator: "@EvalCVapp",
+    creator: "@evalcvapp",
   },
 };
 

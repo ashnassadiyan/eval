@@ -10,10 +10,10 @@ export function Footer() {
             <div className="flex items-center gap-2.5">
               <img
                 src="/logo.png"
-                alt="EvalCV.app Logo"
+                alt="evalcv.app Logo"
                 className="w-8 h-8 rounded-lg object-cover border border-border shadow-xs"
               />
-              <p className="text-xl font-extrabold tracking-tight">EvalCV.app</p>
+              <p className="text-xl font-extrabold tracking-tight">evalcv.app</p>
             </div>
             <p className="mt-3 max-w-xs text-sm text-muted-foreground">
               The intelligent layer between resumes and the right opportunities.
@@ -83,11 +83,11 @@ export function Footer() {
         <div className="mt-12 border-t border-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
             <p className="text-xs tracking-wider text-muted-foreground uppercase">
-              © 2026 EvalCV.app. All rights reserved.
+              © 2026 evalcv.app. All rights reserved.
             </p>
             <span className="hidden sm:inline text-muted-foreground/40">•</span>
             <p className="text-xs text-muted-foreground">
-              Powered by <span className="font-semibold text-foreground">Revalutions</span>
+              Powered by <span className="font-semibold text-foreground">Evolytics</span>
             </p>
           </div>
           <a href="mailto:info@evalcv.app" className="text-xs text-muted-foreground hover:text-foreground transition-colors">

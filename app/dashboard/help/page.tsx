@@ -27,9 +27,9 @@ const faqs: FAQItem[] = [
   {
     id: "faq-1",
     category: "general",
-    question: "What is EvalCV.app and how does the AI intelligence engine work?",
+    question: "What is evalcv.app and how does the AI intelligence engine work?",
     answer:
-      "EvalCV.app is an advanced AI-powered talent intelligence platform designed for independent recruiters and job seekers. It parses resume PDFs/Word docs, extracts candidate skills, experience, and education, and compares them against specific job specifications to calculate ATS compatibility, overall match percentage, and selection probability.",
+      "evalcv.app is an advanced AI-powered talent intelligence platform designed for independent recruiters and job seekers. It parses resume PDFs/Word docs, extracts candidate skills, experience, and education, and compares them against specific job specifications to calculate ATS compatibility, overall match percentage, and selection probability.",
   },
   {
     id: "faq-2",

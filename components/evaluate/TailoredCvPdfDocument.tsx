@@ -263,7 +263,7 @@ export default function TailoredCvPdfDocument({ data }: { data: TailoredCvData }
 
         {/* FOOTER */}
         <Text style={styles.footer}>
-          Generated with EvalCV.app AI Engine — Tailored ATS Resume Document
+          Generated with evalcv.app AI Engine — Tailored ATS Resume Document
         </Text>
       </Page>
     </Document>

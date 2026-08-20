@@ -355,7 +355,7 @@ function ForgotPasswordForm() {
                   </span>
                 </>
               )}
-              {step === 3 && "Create a new strong password for your EvalCV.app account."}
+              {step === 3 && "Create a new strong password for your evalcv.app account."}
               {step === 4 && "Your security credentials have been updated successfully."}
             </p>
           </div>

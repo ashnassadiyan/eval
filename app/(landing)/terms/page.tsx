@@ -69,7 +69,7 @@ export default function TermsOfServicePage() {
             </h2>
           </div>
           <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-            By creating an account or accessing the <strong className="text-foreground">EvalCV.app</strong> platform, you agree to comply with and be bound by the following Terms of Service. Please read these terms carefully before utilizing our AI candidate evaluation services.
+            By creating an account or accessing the <strong className="text-foreground">evalcv.app</strong> platform, you agree to comply with and be bound by the following Terms of Service. Please read these terms carefully before utilizing our AI candidate evaluation services.
           </p>
         </div>
 
@@ -81,7 +81,7 @@ export default function TermsOfServicePage() {
               <UserCheck className="w-4 h-4" /> 1. Account Eligibility & Responsibilities
             </h3>
             <p>
-              To use EvalCV.app, you must be at least 18 years of age or possess the legal authority to represent your organization. You are responsible for maintaining the secrecy of your credentials and all actions conducted under your account.
+              To use evalcv.app, you must be at least 18 years of age or possess the legal authority to represent your organization. You are responsible for maintaining the secrecy of your credentials and all actions conducted under your account.
             </p>
           </section>
 
@@ -134,7 +134,7 @@ export default function TermsOfServicePage() {
               <FileText className="w-4 h-4" /> 5. Limitation of Liability
             </h3>
             <p>
-              EvalCV.app provides candidate matching insight algorithms for informational recruitment support. Final hiring decisions rest solely with the recruiter or organization. EvalCV.app is not liable for indirect or consequential damages arising from recruitment outcomes.
+              evalcv.app provides candidate matching insight algorithms for informational recruitment support. Final hiring decisions rest solely with the recruiter or organization. evalcv.app is not liable for indirect or consequential damages arising from recruitment outcomes.
             </p>
           </section>
         </div>

@@ -302,7 +302,7 @@ export function CreateJobPage({
               </div>
 
               <p className="text-xs leading-relaxed text-zinc-600 dark:text-zinc-400 font-medium">
-                Uploading a detailed JD enables EvalCV.app to construct a precise{" "}
+                Uploading a detailed JD enables evalcv.app to construct a precise{" "}
                 <strong className="font-bold text-zinc-900 dark:text-white">
                   Technical Matrix
                 </strong>{" "}

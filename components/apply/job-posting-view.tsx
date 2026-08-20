@@ -54,7 +54,7 @@ export function JobPostingView({ job }: any) {
             {job.company || "Recruitment AI"}
           </p>
           <p className="text-xs text-zinc-500 dark:text-neutral-500">
-            © {new Date().getFullYear()} {job.company || "Recruitment AI"}. All rights reserved. • Powered by <span className="font-semibold text-zinc-700 dark:text-zinc-300">Revalutions</span>
+            © {new Date().getFullYear()} {job.company || "Recruitment AI"}. All rights reserved. • Powered by <span className="font-semibold text-zinc-700 dark:text-zinc-300">Evolytics</span>
           </p>
         </div>
         <div className="flex gap-6 text-xs text-zinc-600 dark:text-neutral-400">

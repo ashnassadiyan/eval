@@ -347,7 +347,7 @@ export function SocialProofSection() {
                     rows={4}
                     value={feedback}
                     onChange={(e) => setFeedback(e.target.value)}
-                    placeholder="Tell us about your experience with EvalCV.app..."
+                    placeholder="Tell us about your experience with evalcv.app..."
                     className="w-full px-4 py-2.5 text-xs bg-muted/40 border border-border rounded-xl text-foreground focus:outline-none focus:ring-2 focus:ring-primary font-medium"
                   />
                 </div>

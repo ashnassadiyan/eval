@@ -23,7 +23,7 @@ if (firebaseConfig.apiKey && firebaseConfig.projectId) {
   // Handle Background Push Notifications
   messaging.onBackgroundMessage((payload) => {
     console.log('[firebase-messaging-sw.js] Received background push message:', payload);
-    const notificationTitle = payload.notification?.title || payload.data?.title || 'EvalCV.app Notification';
+    const notificationTitle = payload.notification?.title || payload.data?.title || 'evalcv.app Notification';
     const notificationOptions = {
       body: payload.notification?.body || payload.data?.body || '',
       icon: '/logo.png',
