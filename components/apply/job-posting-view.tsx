@@ -51,10 +51,10 @@ export function JobPostingView({ job }: any) {
       <footer className="flex flex-wrap items-center justify-between gap-4 border-t border-zinc-200 dark:border-white/10 px-6 py-6 sm:px-10 bg-white dark:bg-transparent">
         <div>
           <p className="text-sm font-extrabold tracking-tight text-zinc-900 dark:text-white">
-            {job.company || "Recruitment AI"}
+            {job.company || "evalcv"}
           </p>
           <p className="text-xs text-zinc-500 dark:text-neutral-500">
-            © {new Date().getFullYear()} {job.company || "Recruitment AI"}. All rights reserved. • Powered by <span className="font-semibold text-zinc-700 dark:text-zinc-300">Evolytics</span>
+            © {new Date().getFullYear()} {job.company || "evalcv"}. All rights reserved. • Powered by <span className="font-semibold text-zinc-700 dark:text-zinc-300">Evolytics</span>
           </p>
         </div>
         <div className="flex gap-6 text-xs text-zinc-600 dark:text-neutral-400">

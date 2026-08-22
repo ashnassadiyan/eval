@@ -217,7 +217,7 @@ export default function AddCandidates() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#09090b] text-zinc-900 dark:text-white px-4 sm:px-8 pt-2 pb-12 transition-colors">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#09090b] text-zinc-900 dark:text-white px-3.5 sm:px-8 pt-2 pb-12 transition-colors">
       <div className="mx-auto w-full max-w-6xl space-y-6">
         {/* TOP BAR ACTIONS */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-zinc-200 dark:border-zinc-800">
@@ -229,7 +229,7 @@ export default function AddCandidates() {
             <ArrowLeft className="w-4 h-4" /> Back to Candidates List
           </button>
 
-          <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end flex-wrap">
             <button
               type="button"
               onClick={() => router.push(`/my_jobs/${jobId}/candidates/more_candidates`)}
@@ -253,9 +253,9 @@ export default function AddCandidates() {
         {/* 2-STEP WORKFLOW INDICATOR */}
         <div className="w-full max-w-xl mx-auto py-2">
           <div className="flex items-center justify-between relative">
-            <div className="absolute top-5 left-12 right-12 h-0.5 bg-zinc-200 dark:bg-zinc-800 -z-0" />
+            <div className="absolute top-4 sm:top-5 left-8 right-8 sm:left-12 sm:right-12 h-0.5 bg-zinc-200 dark:bg-zinc-800 -z-0" />
             <div
-              className="absolute top-5 left-12 h-0.5 bg-zinc-900 dark:bg-white transition-all duration-500 -z-0"
+              className="absolute top-4 sm:top-5 left-8 sm:left-12 h-0.5 bg-zinc-900 dark:bg-white transition-all duration-500 -z-0"
               style={{ width: step === 1 ? "0%" : "100%" }}
             />
 

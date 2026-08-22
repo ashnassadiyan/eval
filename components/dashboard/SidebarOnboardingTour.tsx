@@ -35,7 +35,7 @@ const TOUR_STEPS: TourStep[] = [
     icon: <Sparkles className="w-6 h-6 text-amber-400 animate-pulse" />,
     navKey: "overview",
     description:
-      "Your high-precision recruitment AI engine is ready. Let's take a quick 1-minute guided tour of your navigation sidebar so you can hit the ground running.",
+      "Your high-precision evalcv engine is ready. Let's take a quick 1-minute guided tour of your navigation sidebar so you can hit the ground running.",
     details: [
       "AI Candidate Benchmarking & Evaluation",
       "Tailored ATS Resume Generation",

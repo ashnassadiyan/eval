@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     "CV Evaluation Dashboard",
     "Talent Intelligence",
     "Candidate Analytics",
-    "Recruitment AI",
+    "evalcv",
     "evalcv.app",
   ],
   openGraph: {

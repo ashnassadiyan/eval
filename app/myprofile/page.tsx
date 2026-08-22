@@ -167,7 +167,7 @@ export default function MyProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#09090b] text-zinc-900 dark:text-white px-4 sm:px-8 pt-2 pb-8 transition-colors">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#09090b] text-zinc-900 dark:text-white px-3.5 sm:px-8 pt-2 pb-8 transition-colors">
       <div className="mx-auto w-full max-w-[1100px]">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-8 pb-6 border-b border-zinc-200 dark:border-zinc-800">

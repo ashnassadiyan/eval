@@ -5,6 +5,15 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { Star, ShieldCheck, Sparkles, Quote, MessageSquarePlus, X, Send } from "lucide-react";
 import api from "@/lib/axios";
 
+function getInitials(nameStr) {
+  if (!nameStr) return "VU";
+  const parts = nameStr.trim().split(/\s+/);
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+  return nameStr.slice(0, 2).toUpperCase();
+}
+
 export function SocialProofSection() {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
@@ -234,11 +243,9 @@ export function SocialProofSection() {
                   </div>
 
                   <div className="flex items-center gap-3.5 pt-5 border-t border-border/80">
-                    <img
-                      src={avatar}
-                      alt={name}
-                      className="w-10 h-10 rounded-full object-cover border-2 border-primary/30 shadow-md"
-                    />
+                    <div className="w-10 h-10 rounded-full bg-primary/10 text-primary border border-primary/20 flex items-center justify-center font-extrabold text-xs font-mono shrink-0 shadow-xs">
+                      {getInitials(name)}
+                    </div>
                     <div>
                       <p className="text-sm font-extrabold text-foreground">{name}</p>
                       <p className="text-xs text-muted-foreground font-medium">{role}</p>

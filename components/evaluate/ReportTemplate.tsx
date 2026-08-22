@@ -567,7 +567,7 @@ export const PdfReportDocument: React.FC<PdfReportDocumentProps> = ({
         <View style={styles.headerRow}>
           <View>
             <Text style={styles.brandTitle}>EVALCV.app</Text>
-            <Text style={styles.brandSubtitle}>RECRUITMENT AI SOLUTIONS</Text>
+            <Text style={styles.brandSubtitle}>EVALCV AI SOLUTIONS</Text>
           </View>
           <View style={styles.headerRight}>
             <Text style={styles.reportTitle}>CV EVALUATION DETAILS</Text>

@@ -116,9 +116,9 @@ function StepIndicator({
     <div className="w-full max-w-2xl mx-auto mb-8">
       <div className="flex items-center justify-between relative">
         {/* Background Connecting Line */}
-        <div className="absolute top-5 left-10 right-10 h-0.5 bg-zinc-200 dark:bg-zinc-800 -z-0" />
+        <div className="absolute top-4 sm:top-5 left-6 right-6 sm:left-10 sm:right-10 h-0.5 bg-zinc-200 dark:bg-zinc-800 -z-0" />
         <div
-          className="absolute top-5 left-10 h-0.5 bg-zinc-900 dark:bg-white transition-all duration-500 -z-0"
+          className="absolute top-4 sm:top-5 left-6 sm:left-10 h-0.5 bg-zinc-900 dark:bg-white transition-all duration-500 -z-0"
           style={{
             width: currentStep === 1 ? "0%" : currentStep === 2 ? "50%" : "100%",
           }}

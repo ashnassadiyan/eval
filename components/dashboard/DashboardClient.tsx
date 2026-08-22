@@ -236,7 +236,7 @@ export default function DashboardClient() {
               Overview & Analytics
             </span>
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white">
-              Recruitment Dashboard
+              evalcv Dashboard
             </h1>
           </div>
           <div className="flex items-center gap-3">

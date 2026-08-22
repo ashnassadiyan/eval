@@ -53,7 +53,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
           />
           <div>
             <h1 className="text-base font-bold text-zinc-900 dark:text-white tracking-tight leading-none">
-              Recruitment AI
+              evalcv
             </h1>
             <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium tracking-wider uppercase mt-1">
               Precision Engine
@@ -83,6 +83,9 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
           <span className="material-symbols-outlined text-[16px]">logout</span>
           Sign Out
         </button>
+        <p className="pt-2 text-center text-[11px] text-zinc-400 dark:text-zinc-500 font-medium">
+          Powered by <span className="font-semibold text-zinc-700 dark:text-zinc-300">Evolytics</span>
+        </p>
       </div>
     </div>
   );
@@ -171,11 +174,21 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
           </header>
 
           {/* Page content */}
-          <div className="flex-1 overflow-y-auto dashboard-scroll flex flex-col min-w-0 bg-slate-50 dark:bg-black transition-colors duration-200">
-            <div className="px-4 sm:px-8 pt-2 pb-0">
-              <Breadcrumbs />
+          <div className="flex-1 overflow-y-auto dashboard-scroll flex flex-col justify-between min-w-0 bg-slate-50 dark:bg-black transition-colors duration-200">
+            <div className="flex-1">
+              <div className="px-4 sm:px-8 pt-2 pb-0">
+                <Breadcrumbs />
+              </div>
+              <PageTransition>{children}</PageTransition>
             </div>
-            <PageTransition>{children}</PageTransition>
+
+            {/* Dashboard Footer */}
+            <footer className="mt-auto py-3.5 px-4 sm:px-8 border-t border-zinc-200 dark:border-zinc-800/60 text-xs text-zinc-500 dark:text-zinc-400 flex flex-col sm:flex-row items-center justify-between gap-2 bg-white/50 dark:bg-[#0c0c0e]/50 backdrop-blur-sm shrink-0">
+              <p>© {new Date().getFullYear()} <span className="font-semibold text-zinc-700 dark:text-zinc-300">evalcv</span>. All rights reserved.</p>
+              <p className="text-xs">
+                Powered by <span className="font-semibold text-zinc-700 dark:text-zinc-200">Evolytics</span>
+              </p>
+            </footer>
           </div>
         </div>
       </div>
