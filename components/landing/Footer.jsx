@@ -35,8 +35,8 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a href="#why-us" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-                  Features
+                <a href="#candidate-flow" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                  Candidate Flow
                 </a>
               </li>
               <li>

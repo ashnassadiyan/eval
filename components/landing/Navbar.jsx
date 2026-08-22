@@ -50,6 +50,12 @@ export function Navbar() {
             >
               Home
             </Link>
+            <a
+              href="#candidate-flow"
+              className="px-3 py-1.5 text-sm font-medium rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+            >
+              Candidate Flow
+            </a>
           </nav>
         </div>
 
@@ -85,6 +91,13 @@ export function Navbar() {
             >
               Home
             </Link>
+            <a
+              href="#candidate-flow"
+              onClick={() => setMobileMenuOpen(false)}
+              className="px-3 py-2.5 text-sm font-medium rounded-md text-muted-foreground hover:bg-muted/50 transition-colors"
+            >
+              Candidate Flow
+            </a>
           </nav>
 
           <div className="pt-2 border-t border-border flex flex-col gap-2">

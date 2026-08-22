@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     template: "%s | evalcv.app",
   },
   description:
-    "AI-powered resume screening and candidate matching platform. Know how employers see your resume, analyze skills gaps, and match top talent faster.",
+    "AI-powered resume screening, ATS compatibility analysis, and candidate matching platform. Know how employers see your resume, analyze skills gaps, and match top talent faster.",
   keywords: [
     "AI Resume Screening",
     "Candidate Matching",
@@ -44,11 +44,29 @@ export const metadata: Metadata = {
     "Skills Gap Analysis",
     "Recruiter AI Tool",
     "Job Application Scanner",
+    "Candidate Screening Automation",
+    "evalcv",
     "evalcv.app",
+    "Evolytics",
   ],
-  authors: [{ name: "Evolytics Team" }],
+  authors: [{ name: "Evolytics Team", url: "https://evalcv.app" }],
   creator: "Evolytics",
   publisher: "Evolytics",
+  alternates: {
+    canonical: "/",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    nocache: false,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
@@ -83,6 +101,40 @@ export const metadata: Metadata = {
     images: ["/og-image.png"],
     creator: "@evalcvapp",
   },
+  category: "HR & Talent Intelligence Technology",
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "evalcv.app",
+  operatingSystem: "All",
+  applicationCategory: "BusinessApplication",
+  url: "https://evalcv.app",
+  description:
+    "AI-powered resume screening, candidate matching, and ATS resume verification platform.",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "INR",
+  },
+  author: {
+    "@type": "Organization",
+    name: "Evolytics",
+    url: "https://evalcv.app",
+  },
+  publisher: {
+    "@type": "Organization",
+    name: "Evolytics",
+    logo: {
+      "@type": "ImageObject",
+      url: "https://evalcv.app/favicon.ico",
+    },
+  },
+  mainEntityOfPage: {
+    "@type": "WebPage",
+    "@id": "https://evalcv.app",
+  },
 };
 
 import { FirebaseNotificationProvider } from "@/context/FirebaseNotificationContext";
@@ -105,6 +157,12 @@ export default function RootLayout({
         <link
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
           rel="stylesheet"
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(jsonLd),
+          }}
         />
       </head>
 

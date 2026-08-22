@@ -38,25 +38,41 @@ export async function generateMetadata({
       };
     }
 
-    const title = `${response.data.job_details.job_title} | Apply Now`;
+    const title = `${response.data.job_details?.job_title || "Job Opportunity"} | Apply Now`;
 
     const description =
       response.data.jd_text?.replace(/\s+/g, " ").trim().slice(0, 160) ??
-      `Apply for ${response.data.job_details.job_title}`;
+      `Apply for ${response.data.job_details?.job_title || "this position"} on evalcv.app`;
+
+    const canonicalUrl = `https://evalcv.app/apply/${encodeURIComponent(
+      response.data.job_details?.job_title || "job"
+    )}/${id}`;
 
     return {
+      metadataBase: new URL("https://evalcv.app"),
       title,
       description,
-
+      alternates: {
+        canonical: canonicalUrl,
+      },
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          "max-video-preview": -1,
+          "max-image-preview": "large",
+          "max-snippet": -1,
+        },
+      },
       openGraph: {
         title,
         description,
         type: "website",
-        url: `https://recroot.app/apply/${encodeURIComponent(
-          job.job_title
-        )}/${id}`,
+        url: canonicalUrl,
+        siteName: "evalcv.app",
       },
-
       twitter: {
         card: "summary_large_image",
         title,
@@ -67,26 +83,54 @@ export async function generateMetadata({
     console.error("Failed to fetch job details:", error);
 
     return {
-      title: "Job Not Found",
-      description: "This job posting could not be found.",
+      title: "Job Application — evalcv.app",
+      description: "Apply for job positions directly with instant CV matching.",
     };
   }
 }
 
 export default async function JobPage({ params }: PageProps) {
-  const { id, job_name } = await params;
+  const { id } = await params;
 
   try {
     const response = await jobService.getJobDetails(id);
     const job: JobDetails | null = response?.data ?? null;
 
     if (!job) {
-      return <div>Job not found.</div>;
+      return <div className="p-12 text-center text-zinc-500 font-medium">Job posting not found.</div>;
     }
 
-    return <JobPostingView job={job} />;
+    const jobTitle = response.data.job_details?.job_title || "Open Role";
+
+    const jobPostingJsonLd = {
+      "@context": "https://schema.org",
+      "@type": "JobPosting",
+      title: jobTitle,
+      description: response.data.jd_text || `Job application posting for ${jobTitle}`,
+      datePosted: response.data.created || new Date().toISOString(),
+      hiringOrganization: {
+        "@type": "Organization",
+        name: response.data.company || "evalcv Partner Network",
+        sameAs: "https://evalcv.app",
+      },
+      employmentType: "FULL_TIME",
+      directApply: true,
+      url: `https://evalcv.app/apply/${encodeURIComponent(jobTitle)}/${id}`,
+    };
+
+    return (
+      <>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(jobPostingJsonLd),
+          }}
+        />
+        <JobPostingView job={job} />
+      </>
+    );
   } catch (error) {
     console.error("Failed to fetch job details:", error);
-    return <div>Job not found.</div>;
+    return <div className="p-12 text-center text-zinc-500 font-medium">Job posting not found.</div>;
   }
 }

@@ -9,6 +9,7 @@ const navItems = [
   { label: "Dashboard", icon: "dashboard", href: "/dashboard" },
   { label: "Evaluation", icon: "description", href: "/evaluate" },
   { label: "My Jobs", icon: "work", href: "/my_jobs" },
+  { label: "Pricing & Tokens", icon: "payments", href: "/dashboard/pricing" },
   { label: "Notifications", icon: "notifications", href: "/dashboard/notifications", isNotification: true },
   { label: "My Profile", icon: "person", href: "/myprofile" },
   { label: "Help & Support", icon: "help_outline", href: "/dashboard/help" },
